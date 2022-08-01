@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <NonVisualComponents>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="jLabel3"/>
+      </Properties>
+    </Component>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jButton1" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="IdL" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="IdTF" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                      <Component id="AvionTF" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="NomL" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="DestinationTF" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="PosteL" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="PrenomL" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              <Component id="DayAPTF" min="-2" pref="60" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="DayDTF" alignment="1" min="-2" pref="60" max="-2" attributes="0"/>
+                                  <Component id="DayAETF" alignment="1" min="-2" pref="60" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="MoisDTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="YearDTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="HeureDTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="MinDTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="MoisAETF" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="YearAETF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="HeureAETF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="MinAETF" min="-2" pref="60" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="MoisAPTF" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="YearAPTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="HeureAPTF" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="MinAPTF" min="-2" pref="60" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace pref="14" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="IdL" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="IdTF" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="DestinationTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="NomL" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="PrenomL" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                      <Component id="HeureDTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MinDTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="DayDTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MoisDTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="YearDTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="PosteL" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="YearAPTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MinAPTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="HeureAPTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MoisAPTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="DayAPTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="DayAETF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MoisAETF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="YearAETF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="HeureAETF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="MinAETF" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="AvionTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+              <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JTextField" name="IdTF">
+    </Component>
+    <Component class="javax.swing.JLabel" name="IdL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Id:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButton1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Ok"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="NomL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Destination:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="PrenomL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="D&#xe9;part:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="PosteL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Arrivee Prevue:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="HeureAPTF">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="HeureAPTFActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JTextField" name="DestinationTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="HeureDTF">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="HeureDTFActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Arrivee Eventuelle:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Avion:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="HeureAETF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="AvionTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="MinDTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="YearDTF">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="YearDTFActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JTextField" name="MinAPTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="YearAPTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="MinAETF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="YearAETF">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="YearAETFActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JTextField" name="DayDTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="MoisDTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="DayAPTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="MoisAPTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="DayAETF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="MoisAETF">
+    </Component>
+  </SubComponents>
+</Form>
