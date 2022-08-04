@@ -17,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.AlgorithmParameters;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -26,8 +27,11 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -196,6 +200,18 @@ public class Application_Billets extends javax.swing.JFrame
             System.err.println("Erreur ! Pas de connexion? [" + ex + "]");
         }
     }
+    
+    public byte[] DecryptMessage(byte[] cryptedMessage) throws InvalidKeyException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        Cipher DecryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        DecryptClient.init(Cipher.DECRYPT_MODE, this.SessionKey);
+        return DecryptClient.doFinal(cryptedMessage);
+    }
+
+     byte[] EncryptMessage(byte[] unCryptedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher EncryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        EncryptClient.init(Cipher.ENCRYPT_MODE, this.SessionKey);
+        return EncryptClient.doFinal(unCryptedMessage);
+    }
 
     public void setTableVol(Vols[] VolArray)
     {
@@ -254,7 +270,7 @@ public class Application_Billets extends javax.swing.JFrame
         return false;
     }
     
-    public ReponseTICKMAP getReponseTICKMAP()
+    public  ReponseTICKMAP getReponseTICKMAP()
     {
         ReponseTICKMAP rep = null;
         try

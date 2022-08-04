@@ -329,8 +329,9 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
     }
 
     @Override
-    public int insertPassengers(ArrayList<Passagers> passagers) {
-        int result = 0, maxId=this.getMaxIdPassengers();
+    public int[] insertPassengers(ArrayList<Passagers> passagers) {
+        int maxId=this.getMaxIdPassengers();
+        int[] arrayId = new int[passagers.size()];
         String insertValues = "";
         for(int i = 0; i < passagers.size(); i++)
         {
@@ -338,6 +339,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
             insertValues = insertValues + "( "+passagers.get(i).IdPassager+" ,"+passagers.get(i).IdVol+" ,'"+passagers.get(i).Nom+"' ,'"+passagers.get(i).Prénom+"' ,'"+passagers.get(i).DdN+"'"+")";
             if(i<passagers.size()-1)
                 insertValues = insertValues +",";
+            arrayId[i] = passagers.get(i).IdPassager;
         }
         System.out.println("insertValues = "+insertValues);
         try {
@@ -347,12 +349,12 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
             BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance");
             BD.setValues(insertValues);
             System.out.println("getPassagers()!!!");
-            result = BD.Insert();
+            BD.Insert();
         } 
         catch (SQLException ex) {
         Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return result;
+        return arrayId;
     }
 
     @Override

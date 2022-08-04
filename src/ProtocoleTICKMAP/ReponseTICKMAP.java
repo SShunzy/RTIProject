@@ -31,10 +31,15 @@ public class ReponseTICKMAP implements Reponse, Serializable
     private String chargeUtile;
     private Certificate certificat;
     private Vols[] vols;
+    private byte[] cryptedMessage;
     
     public ReponseTICKMAP(int c, String chu)
     {
         codeRetour = c; setChargeUtile(chu);
+    }
+    
+    public ReponseTICKMAP(int c, byte[] cryptedMessage){
+        codeRetour = c; this.cryptedMessage = cryptedMessage;
     }
     
     public ReponseTICKMAP(int c, Certificate certificat)
@@ -52,6 +57,7 @@ public class ReponseTICKMAP implements Reponse, Serializable
         this.codeRetour = c;
     }
     
+    public byte[] getCryptedMessage(){return this.cryptedMessage;}
     public Certificate getCertificate(){ return certificat;}
     public Vols[] getVols(){ return vols; }
     

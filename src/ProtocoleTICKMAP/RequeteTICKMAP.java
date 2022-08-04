@@ -378,7 +378,7 @@ public class RequeteTICKMAP implements Requete,Serializable
             while(VolRs.next())
             {
                 selectedVol = new Vols(VolRs.getInt(1),VolRs.getString(2),VolRs.getTimestamp(3),VolRs.getTimestamp(4),VolRs.getTimestamp(5),VolRs.getInt(6),VolRs.getInt(7),VolRs.getString(8),VolRs.getInt(9));
-                System.out.println("Selected Vol = "+selectedVol);
+                System.out.println("Selected Vol = "+selectedVol.ID);
             }
         } catch (SQLException ex) {
             Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
@@ -402,8 +402,29 @@ public class RequeteTICKMAP implements Requete,Serializable
         }
         else
         {
-            cs.insertPassengers(PassagersArray);
-            rep = new ReponseTICKMAP(ReponseTICKMAP.PASSENGERS_ADDED);
+            int[] nbPlaces = cs.insertPassengers(PassagersArray);
+            int prix = selectedVol.Prix * PassagersArray.size();
+            
+            String returnString = prix + "@";
+            for(int i = 0; i < nbPlaces.length; i++){
+                if(i > 0)
+                    returnString +="#";
+                returnString += nbPlaces[i];
+            }
+            
+            Cipher EncryptClient;
+            try {
+                EncryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                EncryptClient.init(Cipher.ENCRYPT_MODE, this.getSessionKey(sock));
+                byte[] encryptString = EncryptClient.doFinal(returnString.getBytes());
+                rep = new ReponseTICKMAP(ReponseTICKMAP.PASSENGERS_ADDED,encryptString);
+                   
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+                Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
+            
         }
     }
 }

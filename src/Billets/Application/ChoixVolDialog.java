@@ -7,6 +7,7 @@ package Billets.Application;
 
 import Classes.Passagers;
 import Classes.Vols;
+import ProtocoleTICKMAP.ReponseTICKMAP;
 import ProtocoleTICKMAP.RequeteTICKMAP;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +29,8 @@ import javax.swing.table.DefaultTableModel;
 public class ChoixVolDialog extends javax.swing.JDialog 
 {
     private Vols vol;
+    private int prix;
+    private int[] nbPlaces;
     ArrayList<String> passagersString;
     private Application_Billets AppliBillets;
     /**
@@ -242,6 +245,7 @@ public class ChoixVolDialog extends javax.swing.JDialog
         }
     }//GEN-LAST:event_SupprimerBTActionPerformed
 
+    
     private byte[] EncryptPassengers(ArrayList<String> passagers)
     {
         if(passagers.size()>0)
@@ -254,13 +258,8 @@ public class ChoixVolDialog extends javax.swing.JDialog
                 returnString +=passagers.get(i);
             }
             System.out.println("Message crypté = "+returnString);
-            Cipher EncryptClient;
             try {
-                EncryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                EncryptClient.init(Cipher.ENCRYPT_MODE, this.AppliBillets.SessionKey);
-                
-                return EncryptClient.doFinal(returnString.getBytes());
-
+                return this.AppliBillets.EncryptMessage(returnString.getBytes());
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
                 Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -276,8 +275,35 @@ public class ChoixVolDialog extends javax.swing.JDialog
         System.out.println("Envoi des passagers en cours");
         RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_ADD_PASSENGERS, this.EncryptPassengers(passagersString));
         this.AppliBillets.sendRequeteTICKMAP(req);
-        this.AppliBillets.setVisible(true);
-        this.dispose();
+        ReponseTICKMAP rep = this.AppliBillets.getReponseTICKMAP();
+        if(rep.getCode() == ReponseTICKMAP.VOL_FULL){
+            JOptionPane.showMessageDialog(this, "Il n'y a pas assez de place pour le vol sélectionné.");
+            this.AppliBillets.setVisible(true);
+            this.dispose();
+        }
+        else if(rep.getCode() == ReponseTICKMAP.PASSENGERS_ADDED){
+            String decodedString= "";
+            try {
+                decodedString = new String(this.AppliBillets.DecryptMessage(rep.getCryptedMessage()));
+            } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
+                Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(!decodedString.isEmpty()){
+                
+                String[] parsedString = decodedString.split("@");
+                this.prix = Integer.parseInt(parsedString[0]);
+                String showString = "Le prix est de "+this.prix+".\n Vos places sont:";
+                String[] parsedPlaces = parsedString[1].split("#");
+                nbPlaces = new int[parsedPlaces.length];
+                for(int i = 0; i < parsedPlaces.length; i++){
+                    nbPlaces[i] = Integer.parseInt(parsedPlaces[i]);
+                    showString += "\n-Nr."+nbPlaces[i];
+                }
+                int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
+                
+            }
+        }
+
     }//GEN-LAST:event_EnvoyerBTActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
