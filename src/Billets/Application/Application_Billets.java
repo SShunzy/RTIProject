@@ -411,6 +411,10 @@ public class Application_Billets extends javax.swing.JFrame
         }
     }
     
+    private void traitePayment(int prix, String NrCarte, String NomPropriétaire)
+    {
+        
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton SelectBT;

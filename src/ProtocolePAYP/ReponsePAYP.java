@@ -14,8 +14,12 @@ import java.io.Serializable;
  */
 public class ReponsePAYP implements Reponse, Serializable
 {
+    public static int PAYMENT_OK = 101;
+    public static int PAYMENT_KO = 202;
+    
     private int codeRetour;
     
+    @Override
     public int getCode() { return this.codeRetour;    }
     
 }

@@ -7,6 +7,7 @@ package ProtocolePAYP;
 
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
+import Payment.Serveur.ConsoleServeurPayment;
 import java.io.Serializable;
 import java.net.Socket;
 
@@ -16,6 +17,9 @@ import java.net.Socket;
  */
 public class RequetePAYP implements Requete, Serializable
 {
+    public static int REQUEST_PAYMENT = 1;
+    
+    
     private int type;
     
     public RequetePAYP(int type)
@@ -26,11 +30,25 @@ public class RequetePAYP implements Requete, Serializable
     @Override
     public boolean createRunnable(Socket s, ConsoleServeur cs) 
     {
-        if(type == 1){
+        if(type == RequetePAYP.REQUEST_PAYMENT){
+            System.out.println("Requete Payment");
+            this.traiteRequetePayment(s,(ConsoleServeurPayment) cs);
             return true;
         }
         else
+        {
+            System.out.println("Requete non implémentée. Fermeture du client");
             return false;
+        }
     }
+    
+    private void traiteRequetePayment(Socket sock, ConsoleServeurPayment cs)
+    {
+         // Affichage des informations
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+    }
+    
+    
     
 }
