@@ -334,24 +334,33 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
     }
 
     @Override
-    public int[] insertPassengers(ArrayList<Passagers> passagers) {
+    public ArrayList<Passagers> insertPassengers(ArrayList<Passagers> passagers) {
         int maxId=this.getMaxIdPassengers();
-        int[] arrayId = new int[passagers.size()];
+        int maxSeatNumber = 0;
+        ResultSet rs = this.getCountPassengers(passagers.get(0).IdVol);
+        try {
+            while(rs.next()){
+                maxSeatNumber = rs.getInt(1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String insertValues = "";
         for(int i = 0; i < passagers.size(); i++)
         {
+            passagers.get(i).SeatNumber = maxSeatNumber + i +1;
             passagers.get(i).IdPassager += maxId;
-            insertValues = insertValues + "( "+passagers.get(i).IdPassager+" ,"+passagers.get(i).IdVol+" ,'"+passagers.get(i).Nom+"' ,'"+passagers.get(i).Prénom+"' ,'"+passagers.get(i).DdN+"'"+")";
+            passagers.get(i).NrCommande = this.getMaxNrCommande()+1;
+            insertValues = insertValues + "( "+passagers.get(i).IdPassager+" ,"+passagers.get(i).IdVol+" ,'"+passagers.get(i).Nom+"' ,'"+passagers.get(i).Prénom+"' ,'"+passagers.get(i).DdN+"' ,"+passagers.get(i).SeatNumber+" ,"+passagers.get(i).NrCommande+")";
             if(i<passagers.size()-1)
                 insertValues = insertValues +",";
-            arrayId[i] = passagers.get(i).IdPassager;
         }
         System.out.println("insertValues = "+insertValues);
         try {
             BDBean BD = new BDBean();
             BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Passagers");
-            BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance");
+            BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance,NuméroSiege,NuméroCommande");
             BD.setValues(insertValues);
             System.out.println("getPassagers()!!!");
             BD.Insert();
@@ -359,10 +368,29 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         catch (SQLException ex) {
         Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return arrayId;
+        for(int i = 0 ; i < passagers.size(); i++)
+            System.out.println(i+">Places = "+passagers.get(i).SeatNumber);
+        return passagers;
+    }
+    
+    public int getMaxNrCommande(){
+        int maxNrCommande = 0;
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Passagers");
+            BD.setColumns("MAX(NuméroCommande)");
+            ResultSet rs = BD.Select(false);
+            while(rs.next())
+                maxNrCommande = rs.getInt(1);
+        } 
+        catch (SQLException ex) {
+        Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("maxId = "+maxNrCommande);
+        return maxNrCommande;
     }
 
-    @Override
     public int getMaxIdPassengers() {
         int maxId = 0;
         try {
@@ -410,5 +438,20 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
             }
         }
         return null;
+    }
+
+    @Override
+    public void removePassengers(int NrCommande) {
+        
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Passagers");
+            BD.setCondition("NuméroCommande = "+NrCommande);
+            BD.Delete();
+        } 
+        catch (SQLException ex) {
+        Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

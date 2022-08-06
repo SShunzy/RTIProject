@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 public class Passagers implements Serializable
 {
     public static int NbPassagers;
-    public int IdPassager,IdVol;
+    public int IdPassager,IdVol,SeatNumber, NrCommande;
     public String Nom, Prénom;
     public Timestamp DdN;
     
@@ -26,14 +26,29 @@ public class Passagers implements Serializable
         this.Nom = nom;
         this.Prénom = prenom;
         this.DdN = ddn;
+        this.SeatNumber = this.IdPassager;
+        this.NrCommande = 0;
     }
     
-    public Passagers(int idPassagers, int idvol, String nom, String prenom, Timestamp ddn)
+    public Passagers( int idvol, String nom, String prenom, Timestamp ddn, int seatNumber)
+    {
+        this.IdPassager = ++Passagers.NbPassagers;
+        this.IdVol = idvol;
+        this.Nom = nom;
+        this.Prénom = prenom;
+        this.DdN = ddn;
+        this.SeatNumber = seatNumber;
+        this.NrCommande = 0;
+    }
+    
+    public Passagers(int idPassagers , int idvol, String nom, String prenom, Timestamp ddn, int seatNumber)
     {
         this.IdPassager = idPassagers;
         this.IdVol = idvol;
         this.Nom = nom;
         this.Prénom = prenom;
         this.DdN = ddn;
+        this.SeatNumber = seatNumber;
+        this.NrCommande = 0;
     }
 }

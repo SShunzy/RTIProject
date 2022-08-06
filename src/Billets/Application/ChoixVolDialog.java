@@ -5,11 +5,15 @@
  */
 package Billets.Application;
 
+import Classes.Passagers;
 import Classes.Vols;
 import ProtocoleTICKMAP.ReponseTICKMAP;
 import ProtocoleTICKMAP.RequeteTICKMAP;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -28,7 +32,6 @@ public class ChoixVolDialog extends javax.swing.JDialog
 {
     private Vols vol;
     private int prix;
-    private int[] nbPlaces;
     ArrayList<String> passagersString;
     private Application_Billets AppliBillets;
     /**
@@ -275,6 +278,7 @@ public class ChoixVolDialog extends javax.swing.JDialog
         System.out.println("Envoi des passagers en cours");
         RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_ADD_PASSENGERS, this.EncryptPassengers(passagersString));
         this.AppliBillets.sendRequeteTICKMAP(req);
+        System.out.println("Passagers Envoyés");
         ReponseTICKMAP rep = this.AppliBillets.getReponseTICKMAP();
         if(rep.getCode() == ReponseTICKMAP.VOL_FULL){
             JOptionPane.showMessageDialog(this, "Il n'y a pas assez de place pour le vol sélectionné.");
@@ -289,18 +293,33 @@ public class ChoixVolDialog extends javax.swing.JDialog
                 Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
             if(!decodedString.isEmpty()){
-                
+                ArrayList<Passagers> PassengersArray = new ArrayList<>();
                 String[] parsedString = decodedString.split("@");
                 this.prix = Integer.parseInt(parsedString[0]);
+                String NrCommande = parsedString[1];
                 String showString = "Le prix est de "+this.prix+".\n Vos places sont:";
-                String[] parsedPlaces = parsedString[1].split("#");
-                nbPlaces = new int[parsedPlaces.length];
-                for(int i = 0; i < parsedPlaces.length; i++){
-                    nbPlaces[i] = Integer.parseInt(parsedPlaces[i]);
-                    showString += "\n-Nr."+nbPlaces[i];
+                String[] parsedNrSiege = parsedString[2].split("#");
+                for(int i = 0; i < parsedNrSiege.length; i++){
+                    showString += "\n-Nr."+parsedNrSiege[i];
                 }
+                showString += "\nVoulez-vous procéder au paiement?";
                 int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
-                
+                if(result == JOptionPane.YES_OPTION)
+                {
+                    
+                }
+                else
+                {
+                    System.out.println("Paiement refusé");
+                    try {
+                        RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED, this.AppliBillets.EncryptMessage(NrCommande.getBytes()));
+                        this.AppliBillets.sendRequeteTICKMAP(reqPaiementRefuse);
+                        this.AppliBillets.setVisible(true);
+                        this.dispose();
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+                        Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }
         }
 

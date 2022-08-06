@@ -22,7 +22,7 @@ public interface ConsoleServeurBillets extends ConsoleServeur
     public Object getTable(String chu);
     public ResultSet getVols();
     public ResultSet getCountPassengers(int idVol);
-    public int[] insertPassengers(ArrayList<Passagers> passagers);
-    public int getMaxIdPassengers();
+    public ArrayList<Passagers> insertPassengers(ArrayList<Passagers> passagers);
+    public void removePassengers(int NrCommande);
     public ResultSet getSelectedVol(int idVol);
 }

@@ -142,9 +142,8 @@ public class Application_Billets extends javax.swing.JFrame
 
     private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
         System.out.println("Déconnexion en cours");
-        RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_LOGOUT);
-        this.sendRequeteTICKMAP(req);
-        this.dispose();        // TODO add your handling code here:
+        this.initLogOut();
+              // TODO add your handling code here:
     }//GEN-LAST:event_StopBTActionPerformed
 
     /**
@@ -184,6 +183,12 @@ public class Application_Billets extends javax.swing.JFrame
                 new LoginBillets(AB,true);
             }
         });
+    }
+    
+    public void initLogOut(){
+        RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_LOGOUT);
+        this.sendRequeteTICKMAP(req);
+        this.dispose();  
     }
     
     public void initConnexion(String adresse, int port)
@@ -272,13 +277,14 @@ public class Application_Billets extends javax.swing.JFrame
         return false;
     }
     
-    public  ReponseTICKMAP getReponseTICKMAP()
+    public ReponseTICKMAP getReponseTICKMAP()
     {
         ReponseTICKMAP rep = null;
         try
         {
             ois = new ObjectInputStream(cliSock.getInputStream());
             rep = (ReponseTICKMAP)ois.readObject();
+            System.out.println("Réponse reçue");
         }
         catch (IOException ex) 
         {

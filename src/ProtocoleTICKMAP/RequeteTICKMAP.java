@@ -39,6 +39,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     public static int REQUEST_CERTIFICATE = 3;
     public static int REQUEST_TEST_CERTIFICATE = 4;
     public static int REQUEST_ADD_PASSENGERS = 5;
+    public static int PAYMENT_REFUSED = 6;
     
     private int type;
     private String ChargeUtile;
@@ -109,7 +110,7 @@ public class RequeteTICKMAP implements Requete,Serializable
             }
             return true;
         }
-        if(type == REQUEST_CERTIFICATE)
+        else if(type == REQUEST_CERTIFICATE)
         {
             System.out.println("Requête Certificat");
             try {
@@ -119,7 +120,7 @@ public class RequeteTICKMAP implements Requete,Serializable
             }
             return true;
         }
-        if(type == REQUEST_TEST_CERTIFICATE)
+        else if(type == REQUEST_TEST_CERTIFICATE)
         {
             System.out.println("Requête Test Cretificat");
             try {
@@ -129,13 +130,18 @@ public class RequeteTICKMAP implements Requete,Serializable
             }
             return true;
         }        
-        if(type == REQUEST_ADD_PASSENGERS)
+        else if(type == REQUEST_ADD_PASSENGERS)
         {
             System.out.println("Requête Passengers");
             this.traiteRequeteAddPassagers(s, (ConsoleServeurBillets)cs);
             return true;
         }
-        if(type == REQUEST_LOGOUT)
+        else if(type == PAYMENT_REFUSED){
+            System.out.println("Requête Paiement Refusé");
+            this.traitePaymentRefused(s,(ConsoleServeurBillets) cs);
+            return true;
+        }
+        else if(type == REQUEST_LOGOUT)
         {
             System.out.println("Requête Log Out");
             this.traiteRequeteLogOut(s,(ConsoleServeurBillets) cs);
@@ -345,11 +351,9 @@ public class RequeteTICKMAP implements Requete,Serializable
     {
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
-        // la charge utile est le nom du client
         ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
-        Vols SelectedVols;
         boolean isVolFull = false;
-        ReponseTICKMAP rep;
+        ReponseTICKMAP rep = null;
         cs.TraceEvenements(adresseDistante+"# Recherche des Passagers#"+Thread.currentThread().getName());
         
         String MessageDecrypt = "";
@@ -403,15 +407,17 @@ public class RequeteTICKMAP implements Requete,Serializable
         }
         else
         {
-            int[] nbPlaces = cs.insertPassengers(PassagersArray);
+            PassagersArray = cs.insertPassengers(PassagersArray);
             int prix = selectedVol.Prix * PassagersArray.size();
             
-            String returnString = prix + "@";
-            for(int i = 0; i < nbPlaces.length; i++){
+            String returnString = prix + "@" + PassagersArray.get(0).NrCommande + "@";
+            for(int i = 0; i < PassagersArray.size(); i++){
                 if(i > 0)
                     returnString +="#";
-                returnString += nbPlaces[i];
+                returnString += PassagersArray.get(i).SeatNumber;
             }
+            
+            System.out.println("ReturnString = "+returnString);
             
             Cipher EncryptClient;
             try {
@@ -423,9 +429,30 @@ public class RequeteTICKMAP implements Requete,Serializable
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
                 Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
-            
+            this.sendReponseTICKMAP(sock, rep);   
         }
+    }
+    
+    private void traitePaymentRefused(Socket sock, ConsoleServeurBillets cs)
+    {
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
+        ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
+        cs.TraceEvenements(adresseDistante+"# Suppression des passagers#"+Thread.currentThread().getName());
+        
+        String MessageDecrypt = "";
+        Cipher DecryptRequete;
+        try {
+            DecryptRequete = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            DecryptRequete.init(Cipher.DECRYPT_MODE, this.getSessionKey(sock),param);
+            MessageDecrypt = new String(DecryptRequete.doFinal(Message),"UTF8");
+            System.out.println("Message Décrypté = "+MessageDecrypt);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        int NuméroCommandeASupprimer = Integer.parseInt(MessageDecrypt);
+        cs.removePassengers(NuméroCommandeASupprimer);
+        
     }
 }
