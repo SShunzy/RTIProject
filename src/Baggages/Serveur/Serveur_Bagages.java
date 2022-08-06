@@ -8,17 +8,13 @@ package Baggages.Serveur;
 import ProtocoleLUGAP.RequeteLUGAP;
 import database.utilities.BDBean;
 import java.util.*;
-import javax.swing.*;
 import javax.swing.table.*;
-import java.net.*;
-import java.io.*;
 import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import InterfacesRéseaux.ConsoleServeur;
 
 /**
  *
@@ -26,6 +22,10 @@ import InterfacesRéseaux.ConsoleServeur;
  */
 public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeurBaggages
 {
+    public static String MySQLConnexion = "jdbc:mysql://localhost:3306/BD_AIRPORT";
+    public static String MySQLUsername = "root";
+    public static String MySQLPassword = "rootmysql11";
+    
     public Hashtable tableLogin = new Hashtable();
     private int portBagages;
     private int portCheckin = 32000;
@@ -285,7 +285,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
             BD.setTable("Vols");
             BD.setColumns("*");
             BD.setCondition("");
@@ -303,7 +303,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
         try {
             BDBean BD = new BDBean();
             
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
             BD.setColumns("prenom, nom");
             BD.setTable("Agents");
             BD.setCondition("");
@@ -326,7 +326,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
             BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
             BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+Idvol);

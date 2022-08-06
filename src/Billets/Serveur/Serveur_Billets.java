@@ -25,6 +25,11 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeurBillets
 {
+    public static String MySQLConnexion = "jdbc:mysql://localhost:3306/BD_AIRPORT";
+    public static String MySQLUsername = "root";
+    public static String MySQLPassword = "rootmysql11";
+
+    
     public Hashtable tableLogin = new Hashtable();
     private SecretKey SessionKey;
     private int portBillets;
@@ -239,7 +244,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         try {
             BDBean BD = new BDBean();
             
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setColumns("prenom, nom");
             BD.setTable("Agents");
             BD.setCondition("");
@@ -285,7 +290,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Vols");
             BD.setColumns("*");
             BD.setCondition("");
@@ -303,7 +308,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         if(idVol > 0){
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Passagers");
                 BD.setColumns("*");
                 BD.setCondition("Passagers.idVols = "+idVol);
@@ -316,7 +321,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         else{
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Passagers");
                 BD.setColumns("*");
                 System.out.println("getPassagers()!!!");
@@ -344,7 +349,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         System.out.println("insertValues = "+insertValues);
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Passagers");
             BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance");
             BD.setValues(insertValues);
@@ -362,7 +367,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         int maxId = 0;
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Passagers");
             BD.setColumns("MAX(idPassagers)");
             System.out.println("getPassagers()!!!");
@@ -382,7 +387,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         if(idVol > 0){
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Vols");
                 BD.setColumns("*");
                 BD.setCondition("Vols.idVols = "+idVol);
@@ -395,7 +400,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         else{
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Vols");
                 BD.setColumns("*");
                 System.out.println("getVols()!!!");
