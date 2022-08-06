@@ -33,13 +33,15 @@ public class ChoixVolDialog extends javax.swing.JDialog
     private Application_Billets AppliBillets;
     /**
      * Creates new form ChoixVolDialog
+     * @param parent
+     * @param modal
      */
     public ChoixVolDialog(java.awt.Frame parent, boolean modal) 
     {
         super(parent, modal);
         initComponents();
         this.AppliBillets = (Application_Billets)parent;
-        this.passagersString = new ArrayList<String>();
+        this.passagersString = new ArrayList<>();
     }
     
     public ChoixVolDialog(java.awt.Frame parent, boolean modal,Vols vol)
@@ -49,7 +51,7 @@ public class ChoixVolDialog extends javax.swing.JDialog
         this.vol = vol;
         IdTF.setText(vol.Destination);
         this.AppliBillets = (Application_Billets)parent;
-        this.passagersString = new ArrayList<String>();
+        this.passagersString = new ArrayList<>();
     }
 
     /**
