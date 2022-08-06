@@ -42,6 +42,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Application_Billets extends javax.swing.JFrame 
 {
+    public static String CertificateRepository = "/home/student/NetBeansProjects/RTIProjectGit/Certificats/";
+    
     public SecretKey SessionKey;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
@@ -338,7 +340,7 @@ public class Application_Billets extends javax.swing.JFrame
             try
             {
                 KeyStore ks = KeyStore.getInstance("JKS");
-                ks.load(new FileInputStream("/home/student/Certificats/Client.key"),"student1".toCharArray());
+                ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Client.key"),"student1".toCharArray());
                 
                 if(this.CheckCertificate(ks,rep.getCertificate()))
                 {

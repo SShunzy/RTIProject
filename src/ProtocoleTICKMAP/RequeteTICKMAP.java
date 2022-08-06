@@ -33,6 +33,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 public class RequeteTICKMAP implements Requete,Serializable
 {
+    public static String CertificateRepository = "/home/student/NetBeansProjects/RTIProjectGit/Certificats/";
     public static int REQUEST_LOGIN = 1;
     public static int REQUEST_LOGOUT = 2;
     public static int REQUEST_CERTIFICATE = 3;
@@ -227,7 +228,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     private void traiteRequeteCertificat(Socket sock, ConsoleServeurBillets cs) throws KeyStoreException, NoSuchProviderException, FileNotFoundException, IOException, NoSuchAlgorithmException, CertificateException
     {
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("/home/student/Certificats/Serveur.key") , "student1".toCharArray());
+        ks.load(new FileInputStream(RequeteTICKMAP.CertificateRepository+"Serveur.key") , "student1".toCharArray());
 
         java.security.cert.Certificate certif = ks.getCertificate("TB");                                       //Le certificat a comme alias tb comme on l'a définis avec Keytool IUI
         
@@ -238,7 +239,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     private void traiteRequeteTestCertificat(Socket sock, ConsoleServeurBillets cs) throws FileNotFoundException, KeyStoreException, NoSuchAlgorithmException, IOException, CertificateException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnrecoverableKeyException
     {
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("/home/student/Certificats/Serveur.key") , "student1".toCharArray());
+        ks.load(new FileInputStream(RequeteTICKMAP.CertificateRepository+"Serveur.key") , "student1".toCharArray());
         
         Cipher DecryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
         Cipher DecryptServeur = Cipher.getInstance("RSA");
