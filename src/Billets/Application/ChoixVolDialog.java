@@ -5,7 +5,6 @@
  */
 package Billets.Application;
 
-import Classes.Passagers;
 import Classes.Vols;
 import ProtocoleTICKMAP.ReponseTICKMAP;
 import ProtocoleTICKMAP.RequeteTICKMAP;
@@ -16,7 +15,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.JOptionPane;
