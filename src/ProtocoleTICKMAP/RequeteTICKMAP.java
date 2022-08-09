@@ -42,7 +42,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     public static int PAYMENT_REFUSED = 6;
     
     private int type;
-    private String ChargeUtile;
+    private String Login;
     private byte[] Message;
     private byte[] ClientKey;
     private AlgorithmParameters param;
@@ -51,7 +51,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     public RequeteTICKMAP(int type, String chu, byte[] digest, Timestamp date)
     {
         this.type=type;
-        this.ChargeUtile = chu;
+        this.Login = chu;
         this.Message = digest;
         this.dateDigest = date;
     }
@@ -67,7 +67,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     public RequeteTICKMAP(int type, String chu)
     {
         this.type = type;
-        this.ChargeUtile = chu;
+        this.Login = chu;
     }
     
     public RequeteTICKMAP(int type, byte[] message)
@@ -81,9 +81,9 @@ public class RequeteTICKMAP implements Requete,Serializable
         this.type = type;
     }
     
-    public String getChargeUtile()
+    public String getLogin()
     {
-        return ChargeUtile;
+        return Login;
     }
     
     public byte[] getDateDigest(){
@@ -197,34 +197,34 @@ public class RequeteTICKMAP implements Requete,Serializable
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         // la charge utile est le nom du client
-        String Pwd = (String)cs.getTable(getChargeUtile());
+        String Pwd = (String)cs.getTable(getLogin());
         
         cs.TraceEvenements(adresseDistante+"#Login de "+
-        getChargeUtile()+"#"+Thread.currentThread().getName());
+        getLogin()+"#"+Thread.currentThread().getName());
         ReponseTICKMAP rep;
         if (Pwd != null)
         {
             Security.addProvider(new BouncyCastleProvider());
-            System.out.println("Login trouvé pour " + getChargeUtile());
+            System.out.println("Login trouvé pour " + getLogin());
             MessageDigest md = MessageDigest.getInstance("SHA-1", "BC");
-            md.update(getChargeUtile().getBytes());
+            md.update(getLogin().getBytes());
             md.update(this.getDateDigest());
             if(MessageDigest.isEqual(getDigest(), md.digest(Pwd.getBytes())))
             {
                 System.out.println("Login OK");
-                rep = new ReponseTICKMAP(ReponseTICKMAP.LOGIN_OK, getChargeUtile());
+                rep = new ReponseTICKMAP(ReponseTICKMAP.LOGIN_OK, getLogin());
             }
             else
             {
                 System.out.println("Login KO");
-                rep = new ReponseTICKMAP(ReponseTICKMAP.WRONG_PASSWORD, getChargeUtile());
+                rep = new ReponseTICKMAP(ReponseTICKMAP.WRONG_PASSWORD, getLogin());
             }
         }
         else
         {
-            System.out.println("Login non trouvé pour " + getChargeUtile());
+            System.out.println("Login non trouvé pour " + getLogin());
             Pwd="?@?";
-            rep = new ReponseTICKMAP(ReponseTICKMAP.LOGIN_NOT_FOUND, getChargeUtile());
+            rep = new ReponseTICKMAP(ReponseTICKMAP.LOGIN_NOT_FOUND, getLogin());
         }
         // Construction d'une réponse //
         this.sendReponseTICKMAP(sock, rep);
