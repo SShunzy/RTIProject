@@ -19,6 +19,10 @@ public class ReponsePAYP implements Reponse, Serializable
     
     private int codeRetour;
     
+    public ReponsePAYP(int type){
+        this.codeRetour = type;
+    }
+    
     @Override
     public int getCode() { return this.codeRetour;    }
     

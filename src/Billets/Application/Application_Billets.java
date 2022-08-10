@@ -21,7 +21,10 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Vector;
@@ -31,10 +34,12 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  *
@@ -314,6 +319,19 @@ public class Application_Billets extends javax.swing.JFrame
         }
     }
     
+    private byte[] createSignature(byte[]message ,SecretKey key)
+    {
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+            Mac hmac = Mac.getInstance("HMAC-MD5", "BC");
+            hmac.init(key);
+            return hmac.doFinal(message);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+    
     private void traiteCertificate()
     {
         
@@ -419,9 +437,43 @@ public class Application_Billets extends javax.swing.JFrame
         }
     }
     
-    private void traitePayment(int prix, String NrCarte, String NomPropriétaire)
-    {
-        
+    public void traitePaymentAccepted(String NrCommande){
+        System.out.println("Paiement accepté");
+        try {
+            String Message = "lionelthys@"+NrCommande;
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            byte[] Signature = this.createSignature(Message.getBytes(),(SecretKey) ks.getKey("lionelthys", "student1".toCharArray()));
+            
+            RequeteTICKMAP reqPaiementAccepte = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_ACCEPTED,this.EncryptMessage(Message.getBytes()),Signature );
+            this.sendRequeteTICKMAP(reqPaiementAccepte);
+            this.setVisible(true);
+            
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (KeyStoreException | IOException | CertificateException | UnrecoverableKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void traitePaiementRefused(String NrCommande){
+        System.out.println("Paiement refusé");
+        try {
+            String Message = "lionelthys@"+NrCommande;
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            byte[] Signature = this.createSignature(Message.getBytes(),(SecretKey) ks.getKey("lionelthys", "student1".toCharArray()));
+            
+            RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED,this.EncryptMessage(Message.getBytes()),Signature );
+            this.sendRequeteTICKMAP(reqPaiementRefuse);
+            this.setVisible(true);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (KeyStoreException | IOException | CertificateException | UnrecoverableKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

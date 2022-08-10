@@ -40,11 +40,13 @@ public class RequeteTICKMAP implements Requete,Serializable
     public static int REQUEST_TEST_CERTIFICATE = 4;
     public static int REQUEST_ADD_PASSENGERS = 5;
     public static int PAYMENT_REFUSED = 6;
+    public static int PAYMENT_ACCEPTED = 7;
     
     private int type;
     private String Login;
     private byte[] Message;
     private byte[] ClientKey;
+    private byte[] Signature;
     private AlgorithmParameters param;
     private Timestamp dateDigest;
     
@@ -62,6 +64,12 @@ public class RequeteTICKMAP implements Requete,Serializable
         this.Message = Message;
         this.ClientKey = ClientKey;
         this.param = parameters;
+    }
+    
+    public RequeteTICKMAP(int type, byte[] Message, byte[]Signature){
+        this.type = type;
+        this.Message = Message;
+        this.Signature = Signature;
     }
     
     public RequeteTICKMAP(int type, String chu)
@@ -139,6 +147,11 @@ public class RequeteTICKMAP implements Requete,Serializable
         else if(type == PAYMENT_REFUSED){
             System.out.println("Requête Paiement Refusé");
             this.traitePaymentRefused(s,(ConsoleServeurBillets) cs);
+            return true;
+        }
+        else if(type == PAYMENT_ACCEPTED){
+            System.out.println("Requête Paiement Accepté");
+            this.traitePaymentAccepted(s,(ConsoleServeurBillets) cs);
             return true;
         }
         else if(type == REQUEST_LOGOUT)
@@ -389,16 +402,9 @@ public class RequeteTICKMAP implements Requete,Serializable
             Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        ResultSet rs = cs.getCountPassengers(Integer.parseInt(passagersValues[0]));
-        try {
-            while(rs.next())
-            {
-                if( rs.getInt(1) + PassagersArray.size() > selectedVol.NbPlace ) isVolFull = true;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        int countPassagers = cs.getCountPassengers(Integer.parseInt(passagersValues[0]));
+        if( countPassagers + PassagersArray.size() > selectedVol.NbPlace ) isVolFull = true;
+
         System.out.println("isVolFull = "+isVolFull);
         
         if(isVolFull)
@@ -407,7 +413,7 @@ public class RequeteTICKMAP implements Requete,Serializable
         }
         else
         {
-            PassagersArray = cs.insertPassengers(PassagersArray);
+            PassagersArray = cs.insertPassengers("",PassagersArray);
             int prix = selectedVol.Prix * PassagersArray.size();
             
             String returnString = prix + "@" + PassagersArray.get(0).NrCommande + "@";
@@ -429,30 +435,99 @@ public class RequeteTICKMAP implements Requete,Serializable
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
                 Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
             }
-            this.sendReponseTICKMAP(sock, rep);   
         }
+        this.sendReponseTICKMAP(sock, rep);   
     }
     
     private void traitePaymentRefused(Socket sock, ConsoleServeurBillets cs)
     {
+        Security.addProvider(new BouncyCastleProvider());
+
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
         ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
         cs.TraceEvenements(adresseDistante+"# Suppression des passagers#"+Thread.currentThread().getName());
         
         String MessageDecrypt = "";
+        String[] MessageElements = null;
         Cipher DecryptRequete;
         try {
+            
+            //Décryptage du message//
+            
             DecryptRequete = Cipher.getInstance("AES/ECB/PKCS5Padding");
             DecryptRequete.init(Cipher.DECRYPT_MODE, this.getSessionKey(sock),param);
             MessageDecrypt = new String(DecryptRequete.doFinal(Message),"UTF8");
             System.out.println("Message Décrypté = "+MessageDecrypt);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
+            MessageElements = MessageDecrypt.split("@");
+            
+            //Comparaison des HMACs//
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(RequeteTICKMAP.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            
+            Mac hmac = Mac.getInstance("HMAC-MD5","BC");
+            hmac.init(ks.getKey(MessageElements[0], "student1".toCharArray()));
+            
+            if(MessageDigest.isEqual(hmac.doFinal(MessageDecrypt.getBytes()), Signature))
+            {
+                System.out.println("Message authentifié");
+                int NuméroCommandeASupprimer = Integer.parseInt(MessageElements[1]);
+                cs.removePassengers(NuméroCommandeASupprimer);
+            }
+            else{
+                System.out.println("Message NON authentifié");
+            }
+            
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException ex) {
             Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        int NuméroCommandeASupprimer = Integer.parseInt(MessageDecrypt);
-        cs.removePassengers(NuméroCommandeASupprimer);
+    }
+    
+    private void traitePaymentAccepted(Socket sock, ConsoleServeurBillets cs)
+    {
+        Security.addProvider(new BouncyCastleProvider());
+
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
+        ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
+        cs.TraceEvenements(adresseDistante+"# Suppression des passagers#"+Thread.currentThread().getName());
+        
+        String MessageDecrypt = "";
+        String[] MessageElements = null;
+        Cipher DecryptRequete;
+        try {
+            
+            //Décryptage du message//
+            
+            DecryptRequete = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            DecryptRequete.init(Cipher.DECRYPT_MODE, this.getSessionKey(sock),param);
+            MessageDecrypt = new String(DecryptRequete.doFinal(Message),"UTF8");
+            System.out.println("Message Décrypté = "+MessageDecrypt);
+            MessageElements = MessageDecrypt.split("@");
+            
+            //Comparaison des HMACs//
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(RequeteTICKMAP.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            
+            Mac hmac = Mac.getInstance("HMAC-MD5","BC");
+            hmac.init(ks.getKey(MessageElements[0], "student1".toCharArray()));
+            
+            if(MessageDigest.isEqual(hmac.doFinal(MessageDecrypt.getBytes()), Signature))
+            {
+                System.out.println("Message authentifié");
+                int NuméroCommandeAAjouter = Integer.parseInt(MessageElements[1]);
+                cs.setCartPayed(NuméroCommandeAAjouter);
+            }
+            else{
+                System.out.println("Message NON authentifié");
+            }
+            
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException ex) {
+            Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
 }

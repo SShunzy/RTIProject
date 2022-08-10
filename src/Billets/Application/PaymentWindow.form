@@ -23,13 +23,134 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="400" max="32767" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="AnnulerBT" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="179" max="32767" attributes="0"/>
+                      <Component id="ConnexionBT" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="NomL" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
+                      <Component id="NomTF" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="PrixL" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="PortL" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="AdresseL" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="PrixTF" alignment="0" max="32767" attributes="0"/>
+                          <Component id="PortTF" alignment="0" max="32767" attributes="0"/>
+                          <Component id="AdresseTF" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="NuméroL" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                      <Component id="NuméroTF" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="300" max="32767" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="AdresseL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="AdresseTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="PortL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="PortTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="PrixL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="PrixTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="NomL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="NomTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="NuméroL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="NuméroTF" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="AnnulerBT" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ConnexionBT" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
   </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="PrixL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Prix:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="NomL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Nom:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="PrixTF">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="AnnulerBT">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Annuler"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AnnulerBTActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="ConnexionBT">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Connexion"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ConnexionBTActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="PortL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Port :"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="AdresseL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Adresse :"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="PortTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="AdresseTF">
+    </Component>
+    <Component class="javax.swing.JLabel" name="Num&#xe9;roL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Num&#xe9;ro:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="Num&#xe9;roTF">
+    </Component>
+    <Component class="javax.swing.JTextField" name="NomTF">
+    </Component>
+  </SubComponents>
 </Form>

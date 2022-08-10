@@ -306,7 +306,10 @@ public class ChoixVolDialog extends javax.swing.JDialog
                 int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
                 if(result == JOptionPane.YES_OPTION)
                 {
-                    
+                    PaymentWindow Payment = new PaymentWindow(this.AppliBillets,"lionelthys",NrCommande,this.prix);
+                    this.AppliBillets.setVisible(true);
+                    Payment.setVisible(true);
+                    this.dispose();
                 }
                 else
                 {

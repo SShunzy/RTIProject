@@ -21,8 +21,9 @@ public interface ConsoleServeurBillets extends ConsoleServeur
     public SecretKey getSecretKey();
     public Object getTable(String chu);
     public ResultSet getVols();
-    public ResultSet getCountPassengers(int idVol);
-    public ArrayList<Passagers> insertPassengers(ArrayList<Passagers> passagers);
+    public int getCountPassengers(int idVol);
+    public ArrayList<Passagers> insertPassengers(String username, ArrayList<Passagers> passagers);
     public void removePassengers(int NrCommande);
     public ResultSet getSelectedVol(int idVol);
+    public void setCartPayed(int NrCommande);
 }
