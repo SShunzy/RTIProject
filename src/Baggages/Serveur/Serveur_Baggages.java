@@ -20,7 +20,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  *
  * @author student
  */
-public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeurBaggages
+public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServeurBaggages
 {
     public static String MySQLConnexion = "jdbc:mysql://localhost:3306/BD_AIRPORT";
     public static String MySQLUsername = "root";
@@ -33,7 +33,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
     /**
      * Creates new form Serveur_Bagages
      */
-    public Serveur_Bagages() {
+    public Serveur_Baggages() {
         Security.addProvider(new BouncyCastleProvider());
         initComponents();
         this.setTitle("Serveur");
@@ -222,20 +222,23 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Serveur_Bagages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Baggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Serveur_Bagages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Baggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Serveur_Bagages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Baggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Serveur_Bagages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Baggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Serveur_Bagages().setVisible(true);
+                new Serveur_Baggages().setVisible(true);
             }
         });
     }
@@ -285,7 +288,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Vols");
             BD.setColumns("*");
             BD.setCondition("");
@@ -293,7 +296,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
             return BD.Select(false);
             
         } catch (SQLException ex) {
-            Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -303,7 +306,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
         try {
             BDBean BD = new BDBean();
             
-            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setColumns("prenom, nom");
             BD.setTable("Agents");
             BD.setCondition("");
@@ -326,7 +329,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection(Serveur_Bagages.MySQLConnexion, Serveur_Bagages.MySQLUsername, Serveur_Bagages.MySQLPassword);
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
             BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
             BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+Idvol);
@@ -334,7 +337,7 @@ public class Serveur_Bagages extends javax.swing.JFrame implements ConsoleServeu
             return BD.Select(false);
             
         } catch (SQLException ex) {
-            Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
