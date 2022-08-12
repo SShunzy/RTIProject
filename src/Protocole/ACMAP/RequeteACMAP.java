@@ -16,10 +16,51 @@ import java.net.Socket;
  */
 public class RequeteACMAP implements Requete, Serializable
 {
+    public static int REQUEST_GET_FLIGHTS = 1;
+    public static int REQUEST_IS_BAGGAGES_LOADED = 3;
+    public static int REQUEST_GET_LANES = 4;
+    public static int REQUEST_LOCK_LANE = 5;
+    public static int REQUEST_LOGOUT = 6;
 
+    private final int type;
+    private final int idFlight;
+    
+    public RequeteACMAP(int type){
+        this.type = type;
+        this.idFlight = 0;
+    }
+    
+    public RequeteACMAP(int type, int idFlight){
+        this.type = type;
+        this.idFlight = idFlight;
+    }
+    
     @Override
     public boolean createRunnable(Socket s, ConsoleServeur cs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(type == RequeteACMAP.REQUEST_GET_FLIGHTS){
+            System.out.println("Requete Get Flights");
+            return true;
+        }
+        else if(type == RequeteACMAP.REQUEST_IS_BAGGAGES_LOADED){
+            System.out.println("Requete Is Baggages Loaded");
+            return true;
+        }
+        else if(type == RequeteACMAP.REQUEST_GET_LANES){
+            System.out.println("Requete Get Lanes");
+            return true;
+        }
+        else if(type == RequeteACMAP.REQUEST_LOCK_LANE){
+            System.out.println("Requete Lock Lane");
+            return true;
+        }
+        else if(type == RequeteACMAP.REQUEST_LOGOUT){
+            System.out.println("Requete Log Out");
+            return false;
+        }
+        else{
+            System.out.println("Requete non implémentée\nFermeture du client");
+            return false;
+        }
     }
     
 }
