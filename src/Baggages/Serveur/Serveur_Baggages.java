@@ -5,7 +5,6 @@
  */
 package Baggages.Serveur;
 
-import ProtocoleLUGAP.RequeteLUGAP;
 import database.utilities.BDBean;
 import java.util.*;
 import javax.swing.table.*;
@@ -320,7 +319,7 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
                 this.tableLogin.put(rs.getString(1), rs.getString(2));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(RequeteLUGAP.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
