@@ -7,8 +7,8 @@ package Billets.Application;
 
 import Baggages.Application.Application_Baggages;
 import Classes.Vols;
-import ProtocoleTICKMAP.ReponseTICKMAP;
-import ProtocoleTICKMAP.RequeteTICKMAP;
+import Protocole.TICKMAP.ReponseTICKMAP;
+import Protocole.TICKMAP.RequeteTICKMAP;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

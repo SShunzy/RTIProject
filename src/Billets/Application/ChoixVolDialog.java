@@ -7,8 +7,8 @@ package Billets.Application;
 
 import Classes.Passagers;
 import Classes.Vols;
-import ProtocoleTICKMAP.ReponseTICKMAP;
-import ProtocoleTICKMAP.RequeteTICKMAP;
+import Protocole.TICKMAP.ReponseTICKMAP;
+import Protocole.TICKMAP.RequeteTICKMAP;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;

@@ -5,8 +5,8 @@
  */
 package Billets.Application;
 
+import Protocole.TICKMAP.RequeteTICKMAP;
 import Baggages.Application.Application_Baggages;
-import ProtocoleTICKMAP.*;
 import java.awt.Dimension;
 import java.io.*;
 import java.net.Socket;

@@ -5,8 +5,8 @@
  */
 package Billets.Application;
 
-import ProtocolePAYP.ReponsePAYP;
-import ProtocolePAYP.RequetePAYP;
+import Protocole.PAYP.ReponsePAYP;
+import Protocole.PAYP.RequetePAYP;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;

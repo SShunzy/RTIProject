@@ -5,7 +5,8 @@
  */
 package Baggages.Application;
 
-import ProtocoleLUGAP.*;
+import Protocole.LUGAP.ReponseLUGAP;
+import Protocole.LUGAP.RequeteLUGAP;
 import Classes.Baggages;
 import Classes.Vols;
 import java.io.*;
