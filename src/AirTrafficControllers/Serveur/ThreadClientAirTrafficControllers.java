@@ -68,6 +68,7 @@ public class ThreadClientAirTrafficControllers extends Thread
 
                 log = req.createRunnable(tacheEnCours, cs);
             }
+            this.stop();
         }
     }
 }
