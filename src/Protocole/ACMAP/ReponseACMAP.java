@@ -25,14 +25,14 @@ public class ReponseACMAP implements Reponse, Serializable
     public static int LANE_KO = 502;
     
     private final int CodeRetour;
-    private final ArrayList<Object> returnArray; 
+    private final Object[] returnArray; 
     
     public ReponseACMAP(int code){
         this.CodeRetour = code;
         this.returnArray = null;
     }
     
-    public ReponseACMAP(int code, ArrayList<Object> array)
+    public ReponseACMAP(int code, Object[] array)
     {
         this.CodeRetour = code;
         this.returnArray = array;
