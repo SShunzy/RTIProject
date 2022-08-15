@@ -303,7 +303,7 @@ public class Application_Baggages extends javax.swing.JFrame
                     System.out.println(" *** Reponse reçue : " + rep.getCode());
 
                     System.out.println("Vols found");
-                    rs = rep2.getTableVol();
+                    rs = (Vols[])rep2.getReturnArray();
                     try {
                         LoadTable();
                     } catch (SQLException ex) {
@@ -381,11 +381,11 @@ public class Application_Baggages extends javax.swing.JFrame
                 Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("Reponse Reçue : "+ rep.getCode());
+             Baggages[] tableBaggage = (Baggages[])rep.getReturnArray();
+            for(int i = 0; tableBaggage[i] != null; i++)
+                System.out.println(tableBaggage[i].AfficheBaggages());
             
-            for(int i = 0; rep.getBaggages()[i] != null; i++)
-                System.out.println(rep.getBaggages()[i].AfficheBaggages());
-            
-            AffichageBaggages BD = new AffichageBaggages(this, false, rep.getBaggages());
+            AffichageBaggages BD = new AffichageBaggages(this, false, tableBaggage);
             BD.setVisible(true);
         }
     }//GEN-LAST:event_SelectBTActionPerformed
