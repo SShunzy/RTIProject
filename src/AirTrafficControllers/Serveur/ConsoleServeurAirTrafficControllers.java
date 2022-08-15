@@ -5,7 +5,10 @@
  */
 package AirTrafficControllers.Serveur;
 
+import Classes.Vols;
 import InterfacesRéseaux.ConsoleServeur;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,5 +16,5 @@ import InterfacesRéseaux.ConsoleServeur;
  */
 public interface ConsoleServeurAirTrafficControllers extends ConsoleServeur 
 {
-    
+    public ArrayList<Vols> getAvailableFlights() throws SQLException; 
 }
