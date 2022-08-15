@@ -28,41 +28,47 @@ public class RequeteLUGAP implements Requete, Serializable
     public static int REQUEST_LOGIN = 1;
     public static int REQUEST_VOLS = 2;
     public static int REQUEST_BAGGAGES = 3;
-    public static int REQUEST_LOGOUT = 4;
-    private int type;
-    private String chargeUtile;
-    private Vols VolSelect;
+    public static int REQUEST_IS_BAGGAGE_LOADED = 4;
+    public static int REQUEST_LOGOUT = 5;
+
+    private final int type;
+    private Object chargeUtile;
     private byte[] Password;
-    private Socket socketClient;
 
     public RequeteLUGAP(int t)
     {
         type = t;
     }
     
-    public RequeteLUGAP(int t, String chu, byte[] pwd)
+    public RequeteLUGAP(int t, Object chu, byte[] pwd)
     {
         type = t; setChargeUtile(chu); setPassword(pwd);
     }
-    public RequeteLUGAP(int t, String chu, Socket s, byte[] pwd)
+    
+    public RequeteLUGAP(int t, Object vol)
     {
-        type = t; setChargeUtile(chu); socketClient =s;setPassword(pwd);
+        type = t; setChargeUtile(vol);
     }
     
-    public RequeteLUGAP(int t, Vols vol)
+    private void setChargeUtile(Object obj){
+        this.chargeUtile = obj;
+    }
+    public Object getChargeUtile(){return chargeUtile;}
+    
+    public byte[] getPassword(){return Password;}
+    private void setPassword(byte[] pwd)
     {
-        type = t; setVol(vol);
+        this.Password = pwd;
     }
             
+    @Override
     public boolean createRunnable (Socket s, ConsoleServeur cs)
     {
         if (type==REQUEST_LOGIN)
         {
             try {
                 this.traiteRequeteLogin(s, (ConsoleServeurBaggages)cs);
-            } catch (NoSuchAlgorithmException ex) {
-                Logger.getLogger(RequeteLUGAP.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (NoSuchProviderException ex) {
+            } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
                 Logger.getLogger(RequeteLUGAP.class.getName()).log(Level.SEVERE, null, ex);
             }
             return true;
@@ -77,7 +83,10 @@ public class RequeteLUGAP implements Requete, Serializable
             this.traiteRequeteBaggage(s, (ConsoleServeurBaggages)cs);
             return true;
         }
-        
+        else if(type == REQUEST_IS_BAGGAGE_LOADED){
+            
+            return false;
+        }
         else if (type == REQUEST_LOGOUT)
         {
             this.traiteRequeteLogOut(s, (ConsoleServeurBaggages)cs);
@@ -86,15 +95,14 @@ public class RequeteLUGAP implements Requete, Serializable
     else return false;
     }
     
-    public int getType(){return type;}
-
     private void traiteRequeteLogin(Socket sock, ConsoleServeurBaggages cs) throws NoSuchAlgorithmException, NoSuchProviderException
     {
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         // la charge utile est le nom du client
-        String Pwd = (String)cs.getTable(getChargeUtile());
+        String Login = (String)this.getChargeUtile();
+        String Pwd = (String)cs.getTable(Login);
         
         cs.TraceEvenements(adresseDistante+"#Login de "+
         getChargeUtile()+"#"+Thread.currentThread().getName());
@@ -103,21 +111,20 @@ public class RequeteLUGAP implements Requete, Serializable
         {
             System.out.println("Login trouvé pour " + getChargeUtile());
             MessageDigest md = MessageDigest.getInstance("SHA-1", "BC");
-            md.update(getChargeUtile().getBytes());
+            md.update(Login.getBytes());
             if(MessageDigest.isEqual(getPassword(), md.digest(Pwd.getBytes())))
             {
-                rep = new ReponseLUGAP(ReponseLUGAP.LOGIN_OK, getChargeUtile());
+                rep = new ReponseLUGAP(ReponseLUGAP.LOGIN_OK, Login);
             }
             else
             {
-                rep = new ReponseLUGAP(ReponseLUGAP.WRONG_PASSWORD, getChargeUtile());
+                rep = new ReponseLUGAP(ReponseLUGAP.WRONG_PASSWORD, Login);
             }
         }
         else
         {
             System.out.println("Login non trouvé pour " + getChargeUtile());
-            Pwd="?@?";
-            rep = new ReponseLUGAP(ReponseLUGAP.LOGIN_NOT_FOUND, getChargeUtile());
+            rep = new ReponseLUGAP(ReponseLUGAP.LOGIN_NOT_FOUND, Login);
         }
         // Construction d'une réponse
 
@@ -185,22 +192,14 @@ public class RequeteLUGAP implements Requete, Serializable
         }
     }
     
-    public String getChargeUtile() { return chargeUtile; } 
-    public void setChargeUtile(String chargeUtile)
-    {
-        this.chargeUtile = chargeUtile;
-    } 
     
-    public byte[] getPassword(){return Password;}
-    public void setPassword(byte[] pwd)
-    {
-        this.Password = pwd;
-    }
     
-    public Vols getVol(){return VolSelect;}
-    public void setVol(Vols vol)
-    {
-        this.VolSelect = vol;
+    public void traiteRequeteIsBaggageLoaded(Socket sock, ConsoleServeurBaggages cs){
+        System.out.println("Requete Is Bagggage Loaded");
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        
     }
     
     public void traiteRequeteLogOut(Socket sock, ConsoleServeurBaggages cs)
@@ -222,9 +221,11 @@ public class RequeteLUGAP implements Requete, Serializable
         System.out.println("RequeteBagages");
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
-        // la charge utile est le nom du client
-        ResultSet rs = cs.getBaggages(getVol().ID);
-        Baggages[] BagTable = new Baggages[getVol().NbPlace+10];
+        
+        Vols VolSelected = (Vols)this.getChargeUtile();
+        
+        ResultSet rs = cs.getBaggages(VolSelected.ID);
+        Baggages[] BagTable = new Baggages[VolSelected.NbPlace+10];
         BagTable[0] = null;
         int i = 0;
         try {
@@ -242,8 +243,11 @@ public class RequeteLUGAP implements Requete, Serializable
         cs.TraceEvenements(adresseDistante+"# Requete Bagages#"+Thread.currentThread().getName());
         ReponseLUGAP rep = new ReponseLUGAP(ReponseLUGAP.BAGGAGES_SEND, BagTable);
         // Construction d'une réponse
-            for(int j = 0; rep.getBaggages()[j] != null; j++)
-                System.out.println(rep.getBaggages()[j].AfficheBaggages());
+        Baggages[] tableBaggage = (Baggages[])rep.getReturnArray();
+        
+        for(int j = 0; tableBaggage[j] != null; j++)
+            System.out.println(tableBaggage[j].AfficheBaggages());
+        
         ObjectOutputStream oos;
         try
         {

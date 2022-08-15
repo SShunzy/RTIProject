@@ -9,7 +9,6 @@ import InterfacesRéseaux.Reponse;
 import Classes.Baggages;
 import Classes.Vols;
 import java.io.*;
-import java.sql.ResultSet;
 
 /**
  *
@@ -23,31 +22,27 @@ public class ReponseLUGAP implements Reponse, Serializable
     public static int VOLS_FOUND = 601;
     public static int VOLS_NULL = 801;
     public static int BAGGAGES_SEND = 901;
+    public static int ALL_BAGGAGES_LOADED = 1001;
+    public static int NOT_ALL_BAGGAGES_LOADED = 1002;
+    
     private int codeRetour;
     private String chargeUtile;
-    private Vols[] TableVols;
+    private Object[] returnArray;
     private Baggages[] TableBagagges;
     public ReponseLUGAP(int c, String chu)
     {
         codeRetour = c; setChargeUtile(chu);
     }
-    public ReponseLUGAP(int c, Vols[] vol)
+    public ReponseLUGAP(int c, Object[] vol)
     {
-        codeRetour = c; setTableVol(vol);
+        codeRetour = c; setReturnArray(vol);
     }
-    
-    public ReponseLUGAP(int c, Baggages[] bg)
-    {
-        codeRetour = c; setBaggages(bg);
-    }
+  
     
     public int getCode() { return codeRetour; }
     public String getChargeUtile() { return chargeUtile; }
     public void setChargeUtile(String chargeUtile) { this.chargeUtile = chargeUtile; } 
     
-    public Vols[] getTableVol(){return TableVols;}
-    public void setTableVol(Vols[] Vol){ this.TableVols = Vol;}
-    
-    public Baggages[] getBaggages(){return TableBagagges;}
-    public void setBaggages(Baggages[] bg){this.TableBagagges = bg;}
+    public Object[] getReturnArray(){return this.returnArray;}
+    public void setReturnArray(Object[] obj){ this.returnArray = obj;}
 }
