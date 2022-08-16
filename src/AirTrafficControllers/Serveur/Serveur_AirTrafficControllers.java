@@ -5,15 +5,14 @@
  */
 package AirTrafficControllers.Serveur;
 
+import Classes.Lanes;
 import Classes.Vols;
 import database.utilities.BDBean;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import javax.crypto.SecretKey;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -27,12 +26,10 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
     public static String MySQLPassword = "rootmysql11";
 
     
-    public Hashtable tableLogin = new Hashtable();
-    private SecretKey SessionKey;
     private int PORT_TOWER;
     private ThreadServeurAirTrafficControllers ts;
     /**
-     * Creates new form Serveur_Billets
+     * Creates new form Serveur_AirTrafficControllers
      */
     public Serveur_AirTrafficControllers() 
     {
@@ -259,13 +256,38 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
             }
             rs.beforeFirst();
                 
-            ArrayList<Vols> FlightArray = new ArrayList<Vols>();
+            ArrayList<Vols> FlightArray = new ArrayList<>();
             
             while(rs.next())
             {
                 FlightArray.add(new Vols(rs.getInt(1),rs.getString(2),rs.getTimestamp(3),rs.getTimestamp(4),rs.getTimestamp(5),rs.getInt(6),rs.getInt(7),rs.getString(8),rs.getInt(9)));
             }
             return FlightArray;
+    }
+    
+    @Override
+    public ArrayList<Lanes> getAvailableLanes() throws SQLException {
+        BDBean BD = new BDBean();
+            
+        BD.setConnection(Serveur_AirTrafficControllers.MySQLConnexion,Serveur_AirTrafficControllers.MySQLUsername ,Serveur_AirTrafficControllers.MySQLPassword );
+        BD.setColumns("IdPiste, NomPiste, isOccupied");
+        BD.setTable("Pistes");
+        BD.setCondition("isOccupied = false");
+
+        ResultSet rs = BD.Select(false);
+
+        if(rs.last()){
+            throw new SQLException();
+        }
+        rs.beforeFirst();
+
+        ArrayList<Lanes> LanesArray = new ArrayList<>();
+
+        while(rs.next())
+        {
+            LanesArray.add(new Lanes(rs.getInt(1),rs.getString(2),rs.getBoolean(3)));
+        }
+        return LanesArray;    
     }
 
 }

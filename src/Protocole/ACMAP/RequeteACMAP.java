@@ -6,6 +6,7 @@
 package Protocole.ACMAP;
 
 import AirTrafficControllers.Serveur.ConsoleServeurAirTrafficControllers;
+import Classes.Lanes;
 import Classes.Vols;
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
@@ -76,6 +77,7 @@ public class RequeteACMAP implements Requete, Serializable
         }
         else if(type == RequeteACMAP.REQUEST_GET_LANES){
             System.out.println("Requete Get Lanes");
+            this.traiteRequestGetLanes(s, (ConsoleServeurAirTrafficControllers) cs);
             return true;
         }
         else if(type == RequeteACMAP.REQUEST_LOCK_LANE){
@@ -84,6 +86,7 @@ public class RequeteACMAP implements Requete, Serializable
         }
         else if(type == RequeteACMAP.REQUEST_LOGOUT){
             System.out.println("Requete Log Out");
+            this.traiteRequeteLogOut(s,(ConsoleServeurAirTrafficControllers) cs);
             return false;
         }
         else{
@@ -113,25 +116,59 @@ public class RequeteACMAP implements Requete, Serializable
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         Socket SBaggages;
-        ObjectOutputStream oos = null;
-        ObjectInputStream ois = null;
-        ReponseLUGAP rep = null;
+        ObjectOutputStream oosLUGAP = null;
+        ObjectInputStream oisLUGAP = null;
+        ReponseLUGAP repLUGAP = null;
+        ReponseACMAP repACMAP = null;
         try {
             SBaggages = new Socket(RequeteACMAP.SERVER_BAGGAGE_ADDRESS,RequeteACMAP.PORT_BAGGAGE);
             
-            oos = new ObjectOutputStream(SBaggages.getOutputStream());
-            oos.writeObject(new RequeteLUGAP(RequeteLUGAP.REQUEST_IS_BAGGAGE_LOADED,this.idFlight)); oos.flush();
+            oosLUGAP = new ObjectOutputStream(SBaggages.getOutputStream());
+            oosLUGAP.writeObject(new RequeteLUGAP(RequeteLUGAP.REQUEST_IS_BAGGAGE_LOADED,this.idFlight)); oosLUGAP.flush();
             
-            ois = new ObjectInputStream(SBaggages.getInputStream());
-            rep = (ReponseLUGAP)ois.readObject();
+            oisLUGAP = new ObjectInputStream(SBaggages.getInputStream());
+            repLUGAP = (ReponseLUGAP)oisLUGAP.readObject();
             
-            if(rep.getCode() == ReponseLUGAP.ALL_BAGGAGES_LOADED){
-                
+            if(repLUGAP.getCode() == ReponseLUGAP.ALL_BAGGAGES_LOADED){
+                repACMAP = new ReponseACMAP(ReponseACMAP.BAGGAGES_LOADED);
             }
+            else{
+                repACMAP = new ReponseACMAP(ReponseACMAP.BAGGAGES_NOT_LOADED);
+            }
+            this.sendReponseACMAP(sock, repACMAP);
             
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(RequeteACMAP.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+    }
+
+    public void traiteRequestGetLanes(Socket sock, ConsoleServeurAirTrafficControllers cs){
+        // Affichage des informations
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        ReponseACMAP rep;
+        try{
+            Lanes[] LanesArray = (Lanes[]) cs.getAvailableLanes().toArray();
+            rep = new ReponseACMAP(ReponseACMAP.SEND_LANES,LanesArray);
+        }
+        catch(SQLException ex){
+            rep = new ReponseACMAP(ReponseACMAP.NO_LANE_FREE);
+        }
+        this.sendReponseACMAP(sock, rep);
+    }
+    
+      private void traiteRequeteLogOut(Socket sock, ConsoleServeurAirTrafficControllers cs)
+    {
+        System.out.println("RequeteLogOut");
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        try {
+            // la charge utile est le nom du client //
+            sock.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ReponseACMAP.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

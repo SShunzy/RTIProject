@@ -5,6 +5,7 @@
  */
 package AirTrafficControllers.Serveur;
 
+import Classes.Lanes;
 import Classes.Vols;
 import InterfacesRéseaux.ConsoleServeur;
 import java.sql.SQLException;
@@ -17,4 +18,5 @@ import java.util.ArrayList;
 public interface ConsoleServeurAirTrafficControllers extends ConsoleServeur 
 {
     public ArrayList<Vols> getAvailableFlights() throws SQLException; 
+    public ArrayList<Lanes> getAvailableLanes() throws SQLException;
 }
