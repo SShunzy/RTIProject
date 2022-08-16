@@ -42,7 +42,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     public static int PAYMENT_REFUSED = 6;
     public static int PAYMENT_ACCEPTED = 7;
     
-    private int type;
+    private final int type;
     private String Login;
     private byte[] Message;
     private byte[] ClientKey;
@@ -111,9 +111,7 @@ public class RequeteTICKMAP implements Requete,Serializable
             System.out.println("Requête Log In");
             try {
                 traiteRequeteLogin(s,(ConsoleServeurBillets)cs);
-            } catch (NoSuchAlgorithmException ex) {
-                Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (NoSuchProviderException ex) {
+            } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
                 Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
             }
             return true;
@@ -316,7 +314,6 @@ public class RequeteTICKMAP implements Requete,Serializable
         } catch (IOException ex) {
             Logger.getLogger(RequeteTICKMAP.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
     
     private void traiteRequeteVols(Socket sock, ConsoleServeurBillets cs)
@@ -364,7 +361,7 @@ public class RequeteTICKMAP implements Requete,Serializable
     {
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
-        ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
+        ArrayList<Passagers> PassagersArray = new ArrayList<>();
         boolean isVolFull = false;
         ReponseTICKMAP rep = null;
         cs.TraceEvenements(adresseDistante+"# Recherche des Passagers#"+Thread.currentThread().getName());
@@ -445,7 +442,7 @@ public class RequeteTICKMAP implements Requete,Serializable
 
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
-        ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
+        ArrayList<Passagers> PassagersArray = new ArrayList<>();
         cs.TraceEvenements(adresseDistante+"# Suppression des passagers#"+Thread.currentThread().getName());
         
         String MessageDecrypt = "";
@@ -491,7 +488,7 @@ public class RequeteTICKMAP implements Requete,Serializable
 
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequetePassagers : adresse distante = " + adresseDistante);
-        ArrayList<Passagers> PassagersArray = new ArrayList<Passagers>();
+        ArrayList<Passagers> PassagersArray = new ArrayList<>();
         cs.TraceEvenements(adresseDistante+"# Suppression des passagers#"+Thread.currentThread().getName());
         
         String MessageDecrypt = "";
