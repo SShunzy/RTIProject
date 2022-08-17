@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -211,7 +213,7 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
     @Override
     public void TraceEvenements(String commentaire) 
     {
-    Vector ligne = new Vector();
+        Vector ligne = new Vector();
         StringTokenizer parser = new StringTokenizer(commentaire,"#");
         while (parser.hasMoreTokens())
         ligne.add(parser.nextToken());
@@ -260,7 +262,7 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
             
             while(rs.next())
             {
-                FlightArray.add(new Vols(rs.getInt(1),rs.getString(2),rs.getTimestamp(3),rs.getTimestamp(4),rs.getTimestamp(5),rs.getInt(6),rs.getInt(7),rs.getString(8),rs.getInt(9)));
+                FlightArray.add(new Vols(rs));
             }
             return FlightArray;
     }
@@ -285,9 +287,26 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
 
         while(rs.next())
         {
-            LanesArray.add(new Lanes(rs.getInt(1),rs.getString(2),rs.getBoolean(3)));
+            LanesArray.add(new Lanes(rs));
         }
         return LanesArray;    
+    }
+
+    @Override
+    public boolean lockAvailableLanes(int idLane) {
+        try {
+            BDBean BD = new BDBean();
+            
+            BD.setConnection(MySQLUsername, MySQLUsername, MySQLPassword);
+            BD.setTable("Pistes");
+            BD.setValues("isOccupied = true");
+            BD.setCondition("idPiste = "+idLane);
+            int result = BD.Update();
+            return result == 1;
+            
+        } catch (SQLException ex) {
+            return false;
+        }
     }
 
 }
