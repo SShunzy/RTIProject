@@ -6,12 +6,15 @@
 package Classes;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  *
  * @author student
  */
-public class Lanes implements Serializable{
+public class Lanes implements Serializable
+{
     public int idLane;
     public String nameLane;
     public boolean isLaneOccupied;
@@ -20,6 +23,12 @@ public class Lanes implements Serializable{
         this.idLane = id;
         this.nameLane = name;
         this.isLaneOccupied = isOccupied;
+    }
+    
+    public Lanes(ResultSet rs) throws SQLException{
+        this.idLane = rs.getInt(1);
+        this.nameLane = rs.getString(2);
+        this.isLaneOccupied = rs.getBoolean(3);
     }
     
 }

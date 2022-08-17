@@ -6,6 +6,8 @@
 package Classes;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
@@ -30,6 +32,18 @@ public class Vols implements Serializable
         this.NbPlace = NbPlace;
         this.NomCompagnie = NomCompagnie;
         this.Prix = prix;
+    }
+    
+    public Vols(ResultSet rs) throws SQLException{
+        this.ID = rs.getInt(1);
+        this.Destination = rs.getString(2);
+        this.HD = rs.getTimestamp(3);
+        this.HAP = rs.getTimestamp(4);
+        this.HAE = rs.getTimestamp(5);
+        this.IdAvion = rs.getInt(6);
+        this.NbPlace = rs.getInt(7);
+        this.NomCompagnie = rs.getString(8);
+        this.Prix = rs.getInt(9);
     }
     
     public Vols()
