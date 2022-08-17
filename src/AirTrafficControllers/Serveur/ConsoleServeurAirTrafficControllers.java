@@ -19,4 +19,5 @@ public interface ConsoleServeurAirTrafficControllers extends ConsoleServeur
 {
     public ArrayList<Vols> getAvailableFlights() throws SQLException; 
     public ArrayList<Lanes> getAvailableLanes() throws SQLException;
+    public boolean lockAvailableLanes(int idLane);
 }
