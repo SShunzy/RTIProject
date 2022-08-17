@@ -423,7 +423,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
                 BD.setTable("Vols");
                 BD.setColumns("*");
                 BD.setCondition("Vols.idVols = "+idVol);
-                System.out.println("getVols()!!!");
+                System.out.println("getSelectedVols()!!!");
                 return BD.Select(false);
             } catch (SQLException ex) {
                 Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
@@ -435,7 +435,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
                 BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Vols");
                 BD.setColumns("*");
-                System.out.println("getVols()!!!");
+                System.out.println("getSelectedVols()!!!");
                 return BD.Select(false);
             } catch (SQLException ex) {
                 Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);

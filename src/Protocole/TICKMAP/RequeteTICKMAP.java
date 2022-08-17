@@ -336,7 +336,7 @@ public class RequeteTICKMAP implements Requete,Serializable
             try {
                 while(VolArray.length != 0 && rs.next())
                 {
-                    VolArray[i] = new Vols(rs.getInt(1),rs.getString(2),rs.getTimestamp(3),rs.getTimestamp(4),rs.getTimestamp(5),rs.getInt(6),rs.getInt(7),rs.getString(8),rs.getInt(9));
+                    VolArray[i] = new Vols(rs);
                     i++;
                 }
                 // Construction d'une réponse
@@ -392,7 +392,7 @@ public class RequeteTICKMAP implements Requete,Serializable
         try {
             while(VolRs.next())
             {
-                selectedVol = new Vols(VolRs.getInt(1),VolRs.getString(2),VolRs.getTimestamp(3),VolRs.getTimestamp(4),VolRs.getTimestamp(5),VolRs.getInt(6),VolRs.getInt(7),VolRs.getString(8),VolRs.getInt(9));
+                selectedVol = new Vols(VolRs);
                 System.out.println("Selected Vol = "+selectedVol.ID);
             }
         } catch (SQLException ex) {

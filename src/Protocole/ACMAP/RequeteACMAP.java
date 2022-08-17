@@ -37,16 +37,16 @@ public class RequeteACMAP implements Requete, Serializable
     public static int REQUEST_LOGOUT = 6;
 
     private final int type;
-    private final int idFlight;
+    private final Object requestObject;
     
     public RequeteACMAP(int type){
         this.type = type;
-        this.idFlight = 0;
+        this.requestObject = null;
     }
     
     public RequeteACMAP(int type, int idFlight){
         this.type = type;
-        this.idFlight = idFlight;
+        this.requestObject = idFlight;
     }
     
    private void sendReponseACMAP(Socket sock, ReponseACMAP rep)
@@ -82,6 +82,7 @@ public class RequeteACMAP implements Requete, Serializable
         }
         else if(type == RequeteACMAP.REQUEST_LOCK_LANE){
             System.out.println("Requete Lock Lane");
+            this.traiteRequestLockLanes(s,(ConsoleServeurAirTrafficControllers) cs);
             return true;
         }
         else if(type == RequeteACMAP.REQUEST_LOGOUT){
@@ -124,7 +125,7 @@ public class RequeteACMAP implements Requete, Serializable
             SBaggages = new Socket(RequeteACMAP.SERVER_BAGGAGE_ADDRESS,RequeteACMAP.PORT_BAGGAGE);
             
             oosLUGAP = new ObjectOutputStream(SBaggages.getOutputStream());
-            oosLUGAP.writeObject(new RequeteLUGAP(RequeteLUGAP.REQUEST_IS_BAGGAGE_LOADED,this.idFlight)); oosLUGAP.flush();
+            oosLUGAP.writeObject(new RequeteLUGAP(RequeteLUGAP.REQUEST_IS_BAGGAGE_LOADED,this.requestObject)); oosLUGAP.flush();
             
             oisLUGAP = new ObjectInputStream(SBaggages.getInputStream());
             repLUGAP = (ReponseLUGAP)oisLUGAP.readObject();
@@ -159,7 +160,22 @@ public class RequeteACMAP implements Requete, Serializable
         this.sendReponseACMAP(sock, rep);
     }
     
-      private void traiteRequeteLogOut(Socket sock, ConsoleServeurAirTrafficControllers cs)
+    private void traiteRequestLockLanes(Socket sock, ConsoleServeurAirTrafficControllers cs){
+        // Affichage des informations
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        ReponseACMAP rep;
+        if(cs.lockAvailableLanes((int) this.requestObject)){
+            rep = new ReponseACMAP(ReponseACMAP.LANE_OK);
+        }
+        else{
+            rep = new ReponseACMAP(ReponseACMAP.LANE_KO);
+        }
+        this.sendReponseACMAP(sock, rep);
+    }
+    
+    private void traiteRequeteLogOut(Socket sock, ConsoleServeurAirTrafficControllers cs)
     {
         System.out.println("RequeteLogOut");
         String adresseDistante = sock.getRemoteSocketAddress().toString();
