@@ -28,7 +28,9 @@ public class ReponseLUGAP implements Reponse, Serializable
     private int codeRetour;
     private String chargeUtile;
     private Object[] returnArray;
-    private Baggages[] TableBagagges;
+    public ReponseLUGAP(int c){
+        codeRetour = c;
+    }
     public ReponseLUGAP(int c, String chu)
     {
         codeRetour = c; setChargeUtile(chu);
