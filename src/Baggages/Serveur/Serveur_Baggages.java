@@ -340,4 +340,47 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
         }
         return null;
     }
+
+    @Override
+    public boolean isAllBaggagesLoaded(int idvol) {
+        return this.getCountBaggagesLoaded(idvol) == this.getCountBaggages(idvol);
+    }
+    
+    private int getCountBaggages(int idVol){
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
+            BD.setTable("Bagages inner join Billets");
+            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
+            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol);
+            System.out.println("getBaggages()!!!");
+            ResultSet rs = BD.Select(true);
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
+    
+    private int getCountBaggagesLoaded(int idVol){
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
+            BD.setTable("Bagages inner join Billets");
+            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
+            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol+" && Bagages.");
+            System.out.println("getBaggages()!!!");
+            ResultSet rs = BD.Select(true);
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
 }
