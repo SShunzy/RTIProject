@@ -51,15 +51,17 @@ public class ThreadServeurAirTrafficControllers extends Thread
             try
             {
                 System.out.println("************ Serveur en attente");
-                CSocket = SSocket.accept();
-                //Création d'un thread à chaque demande//
-                
-                int newNumberOfThread = thr.size()+1;
-                thr.add(new ThreadClientAirTrafficControllers(tachesAExecuter, "Thread du pool n°" + String.valueOf(newNumberOfThread),guiApplication));
-                
+                CSocket = SSocket.accept();                
                 
                 tachesAExecuter.recordTache(CSocket);
                 System.out.println("Socket mis dans la file");
+                
+                //Création d'un thread à chaque demande//                
+                int newNumberOfThread = thr.size()+1;
+                ThreadClientAirTrafficControllers ThrClient = new ThreadClientAirTrafficControllers(tachesAExecuter, "Thread du pool n°" + String.valueOf(newNumberOfThread),guiApplication);
+                ThrClient.run();
+                thr.add(ThrClient);
+                
                 guiApplication.TraceEvenements(CSocket.getRemoteSocketAddress().toString() + "#accept#thread serveur");
             }
             catch (IOException e)
