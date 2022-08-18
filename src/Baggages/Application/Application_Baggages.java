@@ -147,6 +147,11 @@ public class Application_Baggages extends javax.swing.JFrame
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         VolsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -339,7 +344,7 @@ public class Application_Baggages extends javax.swing.JFrame
         this.dispose();
     }//GEN-LAST:event_AnnulerBTActionPerformed
 
-    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+    public void initLogOut(){
         try {
             
             RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGOUT);
@@ -350,8 +355,11 @@ public class Application_Baggages extends javax.swing.JFrame
         } catch (IOException ex) {
             Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
-      // TODO add your handling code here:
-
+    }
+    
+    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+        // TODO add your handling code here:
+        this.initLogOut();
     }//GEN-LAST:event_StopBTActionPerformed
 
     private void SelectBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectBTActionPerformed
@@ -389,6 +397,11 @@ public class Application_Baggages extends javax.swing.JFrame
             BD.setVisible(true);
         }
     }//GEN-LAST:event_SelectBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.initLogOut();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

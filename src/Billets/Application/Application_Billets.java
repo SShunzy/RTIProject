@@ -77,6 +77,11 @@ public class Application_Billets extends javax.swing.JFrame
         VolsTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         SelectBT.setText("Sélectionner");
         SelectBT.addActionListener(new java.awt.event.ActionListener() {
@@ -150,6 +155,11 @@ public class Application_Billets extends javax.swing.JFrame
         this.initLogOut();
               // TODO add your handling code here:
     }//GEN-LAST:event_StopBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.initLogOut();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

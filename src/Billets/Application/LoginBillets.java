@@ -63,6 +63,11 @@ public class LoginBillets extends javax.swing.JDialog
         PasswordPF = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         LoginL.setText("Login :");
 
@@ -203,6 +208,12 @@ public class LoginBillets extends javax.swing.JDialog
         }
         
     }//GEN-LAST:event_ConnexionBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        parent.initLogOut();
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
 
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

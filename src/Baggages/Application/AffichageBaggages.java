@@ -17,9 +17,7 @@ import javax.swing.table.DefaultTableModel;
 public class AffichageBaggages extends javax.swing.JDialog {
 
     private Baggages[] bag;
-    /**
-     * Creates new form Baggages
-     */
+
     public AffichageBaggages(java.awt.Frame parent, boolean modal, Baggages[] bag) {
         super(parent, modal);
         initComponents();
