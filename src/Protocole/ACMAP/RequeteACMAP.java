@@ -27,14 +27,16 @@ import java.util.logging.Logger;
  */
 public class RequeteACMAP implements Requete, Serializable
 {
-    public static String SERVER_BAGGAGE_ADDRESS = "127.0.0.1";
-    public static int PORT_BAGGAGE = 32400;
+    private static String SERVER_BAGGAGE_ADDRESS = "127.0.0.1";
+    private static int PORT_BAGGAGE = 32400;
     
     public static int REQUEST_GET_FLIGHTS = 1;
+    public static int REQUEST_CHECKIN_OFF = 2;
     public static int REQUEST_IS_BAGGAGES_LOADED = 3;
     public static int REQUEST_GET_LANES = 4;
     public static int REQUEST_LOCK_LANE = 5;
-    public static int REQUEST_LOGOUT = 6;
+    public static int REQUEST_UNLOCK_LANE = 6;
+    public static int REQUEST_LOGOUT = 7;
 
     private final int type;
     private final Object requestObject;
@@ -70,6 +72,11 @@ public class RequeteACMAP implements Requete, Serializable
             this.traiteRequestGetFlights(s,(ConsoleServeurAirTrafficControllers) cs);
             return true;
         }
+        else if(type == RequeteACMAP.REQUEST_CHECKIN_OFF){
+            System.out.println("Requete CheckIn Off");
+            this.traiteRequestCheckinOff(s,(ConsoleServeurAirTrafficControllers) cs);
+            return true;
+        }
         else if(type == RequeteACMAP.REQUEST_IS_BAGGAGES_LOADED){
             System.out.println("Requete Is Baggages Loaded");
             this.traiteRequestIsBaggageLoaded(s,(ConsoleServeurAirTrafficControllers) cs);
@@ -96,14 +103,15 @@ public class RequeteACMAP implements Requete, Serializable
         }
     }
     
-    public void traiteRequestGetFlights(Socket sock, ConsoleServeurAirTrafficControllers cs){
+    private void traiteRequestGetFlights(Socket sock, ConsoleServeurAirTrafficControllers cs){
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         
         ReponseACMAP rep;
+        
         try{
-            Vols[] FlightArray = (Vols[]) cs.getAvailableFlights().toArray();
+            Vols[] FlightArray = cs.getAvailableFlights().toArray(new Vols[0]); 
             rep = new ReponseACMAP(ReponseACMAP.SEND_FLIGHTS,FlightArray);
         }
         catch(SQLException ex){
@@ -112,7 +120,13 @@ public class RequeteACMAP implements Requete, Serializable
         this.sendReponseACMAP(sock, rep);
     }
     
-    public void traiteRequestIsBaggageLoaded(Socket sock, ConsoleServeurAirTrafficControllers cs){
+    private void traiteRequestCheckinOff(Socket sock, ConsoleServeurAirTrafficControllers cs){
+        // Affichage des informations
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+    }
+    
+    private void traiteRequestIsBaggageLoaded(Socket sock, ConsoleServeurAirTrafficControllers cs){
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
@@ -137,6 +151,9 @@ public class RequeteACMAP implements Requete, Serializable
                 repACMAP = new ReponseACMAP(ReponseACMAP.BAGGAGES_NOT_LOADED);
             }
             this.sendReponseACMAP(sock, repACMAP);
+            oisLUGAP.close();
+            oosLUGAP.close();
+            SBaggages.close();
             
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(RequeteACMAP.class.getName()).log(Level.SEVERE, null, ex);
@@ -144,14 +161,14 @@ public class RequeteACMAP implements Requete, Serializable
         
     }
 
-    public void traiteRequestGetLanes(Socket sock, ConsoleServeurAirTrafficControllers cs){
+    private void traiteRequestGetLanes(Socket sock, ConsoleServeurAirTrafficControllers cs){
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         
         ReponseACMAP rep;
         try{
-            Lanes[] LanesArray = (Lanes[]) cs.getAvailableLanes().toArray();
+            Lanes[] LanesArray = cs.getAvailableLanes().toArray(new Lanes[0]);
             rep = new ReponseACMAP(ReponseACMAP.SEND_LANES,LanesArray);
         }
         catch(SQLException ex){
@@ -167,10 +184,25 @@ public class RequeteACMAP implements Requete, Serializable
         
         ReponseACMAP rep;
         if(cs.lockAvailableLanes((int) this.requestObject)){
-            rep = new ReponseACMAP(ReponseACMAP.LANE_OK);
+            rep = new ReponseACMAP(ReponseACMAP.LOCK_LANE_OK);
         }
         else{
-            rep = new ReponseACMAP(ReponseACMAP.LANE_KO);
+            rep = new ReponseACMAP(ReponseACMAP.LOCK_LANE_KO);
+        }
+        this.sendReponseACMAP(sock, rep);
+    }
+    
+    private void traiteRequestUnlockLane(Socket sock, ConsoleServeurAirTrafficControllers cs){
+        // Affichage des informations
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        ReponseACMAP rep;
+        if(cs.unlockLane((int) this.requestObject)){
+            rep = new ReponseACMAP(ReponseACMAP.UNLOCK_LANE_OK);
+        }
+        else{
+            rep = new ReponseACMAP(ReponseACMAP.UNLOCK_LANE_KO);
         }
         this.sendReponseACMAP(sock, rep);
     }

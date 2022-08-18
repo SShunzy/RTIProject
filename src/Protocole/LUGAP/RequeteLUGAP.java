@@ -84,7 +84,7 @@ public class RequeteLUGAP implements Requete, Serializable
             return true;
         }
         else if(type == REQUEST_IS_BAGGAGE_LOADED){
-            
+            this.traiteRequestIsBaggageLoaded(s, (ConsoleServeurBaggages) cs);
             return false;
         }
         else if (type == REQUEST_LOGOUT)
@@ -133,6 +133,30 @@ public class RequeteLUGAP implements Requete, Serializable
         {
             oos = new ObjectOutputStream(sock.getOutputStream());
             oos.writeObject(rep); oos.flush();
+        }
+        catch (IOException e)
+        {
+            System.err.println("Erreur réseau ? [" + e.getMessage() + "]");
+        }
+    }
+    
+    private void traiteRequestIsBaggageLoaded(Socket sock, ConsoleServeurBaggages cs){
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        ReponseLUGAP rep;
+        if(cs.isAllBaggagesLoaded((int)this.chargeUtile)){
+            rep = new ReponseLUGAP(ReponseLUGAP.ALL_BAGGAGES_LOADED);
+        }
+        else{
+            rep = new ReponseLUGAP(ReponseLUGAP.NOT_ALL_BAGGAGES_LOADED);
+        }
+        ObjectOutputStream oos;
+        try
+        {
+            oos = new ObjectOutputStream(sock.getOutputStream());
+            oos.writeObject(rep); 
+            oos.flush();
         }
         catch (IOException e)
         {
