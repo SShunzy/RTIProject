@@ -7,7 +7,6 @@ package Protocole.ACMAP;
 
 import InterfacesRéseaux.Reponse;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  *
@@ -21,8 +20,11 @@ public class ReponseACMAP implements Reponse, Serializable
     public static int BAGGAGES_NOT_LOADED = 202;
     public static int SEND_LANES = 401;
     public static int NO_LANE_FREE = 402;
-    public static int LANE_OK = 501;
-    public static int LANE_KO = 502;
+    public static int LOCK_LANE_OK = 501;
+    public static int LOCK_LANE_KO = 502;
+    public static int UNLOCK_LANE_OK = 601;
+    public static int UNLOCK_LANE_KO = 602;
+
     
     private final int CodeRetour;
     private final Object[] returnArray; 
@@ -41,6 +43,10 @@ public class ReponseACMAP implements Reponse, Serializable
     @Override
     public int getCode() {
         return this.CodeRetour;
+    }
+    
+    public Object[] getArray(){
+        return this.returnArray;
     }
     
 }
