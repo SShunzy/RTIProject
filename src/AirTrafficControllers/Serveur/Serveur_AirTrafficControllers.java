@@ -13,8 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -59,6 +57,11 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
         ClientL = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         StartBT.setText("Lancer");
         StartBT.addActionListener(new java.awt.event.ActionListener() {
@@ -165,13 +168,23 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
         ts.start();
     }//GEN-LAST:event_StartBTActionPerformed
 
-    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+    private void StopServer(){
         if(ts!= null)
         {
             ts.Shutdown();
             this.StopTrace();
         }
+    }
+    
+    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+        this.StopServer();
     }//GEN-LAST:event_StopBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.StopServer();
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -247,18 +260,22 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
             BDBean BD = new BDBean();
             
             BD.setConnection(Serveur_AirTrafficControllers.MySQLConnexion,Serveur_AirTrafficControllers.MySQLUsername ,Serveur_AirTrafficControllers.MySQLPassword );
-            BD.setColumns("IdVols, Destination, HeureDepart, HeureArriveePrevue, HeureArriveeEventuelle, idAvion, NbPlace, NomCompagnie, PrixVol");
+            BD.setColumns("idVols, Destination, HeureDepart, HeureArriveePrevue, HeureArriveeEventuelle, idAvion, NbPlace, NomCompagnie, PrixVol");
             BD.setTable("Vols");
             BD.setCondition("");
             
             ResultSet rs = BD.Select(false);
             
             if(rs.last()){
+
+            }
+            else{
+                System.err.println("Pas de vols trouvés");
                 throw new SQLException();
             }
             rs.beforeFirst();
                 
-            ArrayList<Vols> FlightArray = new ArrayList<>();
+            ArrayList<Vols> FlightArray = new ArrayList<Vols>();
             
             while(rs.next())
             {
@@ -297,9 +314,26 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
         try {
             BDBean BD = new BDBean();
             
-            BD.setConnection(MySQLUsername, MySQLUsername, MySQLPassword);
+            BD.setConnection(MySQLConnexion, MySQLUsername, MySQLPassword);
             BD.setTable("Pistes");
             BD.setValues("isOccupied = true");
+            BD.setCondition("idPiste = "+idLane);
+            int result = BD.Update();
+            return result == 1;
+            
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean unlockLane(int idLane){
+        try {
+            BDBean BD = new BDBean();
+            
+            BD.setConnection(MySQLConnexion, MySQLUsername, MySQLPassword);
+            BD.setTable("Pistes");
+            BD.setValues("isOccupied = false");
             BD.setCondition("idPiste = "+idLane);
             int result = BD.Update();
             return result == 1;
