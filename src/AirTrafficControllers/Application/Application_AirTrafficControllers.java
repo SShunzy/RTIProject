@@ -38,6 +38,7 @@ public class Application_AirTrafficControllers extends javax.swing.JFrame {
         this.initConnexion(SERVER_ADDRESS,SERVER_PORT);
         this.loadVolsArray();
         this.setVisible(true);
+        this.setTitle("Application Air Traffic Controllers");
     }
     
     private void initConnexion(String adresse, int port)
