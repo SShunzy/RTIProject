@@ -5,8 +5,14 @@
  */
 package AirTrafficControllers.Application;
 
+import Classes.Lanes;
 import Classes.Vols;
+import Protocole.ACMAP.ReponseACMAP;
 import Protocole.ACMAP.RequeteACMAP;
+import java.util.Timer;
+import java.util.Vector;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +21,8 @@ import Protocole.ACMAP.RequeteACMAP;
 public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
     private Vols selectedVol;
     private Application_AirTrafficControllers parent;
+    private Lanes[] LanesArray;
+    private Lanes selectedLane;
     /**
      * Creates new form SelectedVol_AirTrafficControllers
      */
@@ -28,6 +36,7 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
         this.selectedVol = selected;
         this.setTitle(this.selectedVol.StringTable());
         this.AirTrafficControllersGroup.setSelected(this.BusyRB.getModel(), true);
+        this.SelectionLaneDialog.setVisible(false);
     }
     
 
@@ -41,6 +50,11 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
     private void initComponents() {
 
         AirTrafficControllersGroup = new javax.swing.ButtonGroup();
+        SelectionLaneDialog = new javax.swing.JDialog();
+        StopBT = new javax.swing.JButton();
+        SelectBT = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        LanesTable = new javax.swing.JTable();
         BusyPanel = new javax.swing.JPanel();
         BusyRB = new javax.swing.JRadioButton();
         BusyL = new javax.swing.JLabel();
@@ -60,6 +74,58 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
         FlyingRB = new javax.swing.JRadioButton();
         FlyingL = new javax.swing.JLabel();
         NextStepButton = new javax.swing.JButton();
+
+        StopBT.setText("Arrêter");
+        StopBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                StopBTActionPerformed(evt);
+            }
+        });
+
+        SelectBT.setText("Sélectionner");
+        SelectBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SelectBTActionPerformed(evt);
+            }
+        });
+
+        LanesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Pistes"
+            }
+        ));
+        jScrollPane1.setViewportView(LanesTable);
+
+        javax.swing.GroupLayout SelectionLaneDialogLayout = new javax.swing.GroupLayout(SelectionLaneDialog.getContentPane());
+        SelectionLaneDialog.getContentPane().setLayout(SelectionLaneDialogLayout);
+        SelectionLaneDialogLayout.setHorizontalGroup(
+            SelectionLaneDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(SelectionLaneDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(SelectionLaneDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(SelectionLaneDialogLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 1, Short.MAX_VALUE))
+                    .addGroup(SelectionLaneDialogLayout.createSequentialGroup()
+                        .addComponent(StopBT, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(SelectBT)))
+                .addContainerGap())
+        );
+        SelectionLaneDialogLayout.setVerticalGroup(
+            SelectionLaneDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(SelectionLaneDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(SelectionLaneDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(StopBT)
+                    .addComponent(SelectBT))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -270,9 +336,9 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(CheckinOffPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(BusyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(BusyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(ReadyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(ReadyToFlyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(ReadyToFlyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(TakingOffPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(FlyingPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -286,26 +352,84 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
     private void NextStepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextStepButtonActionPerformed
         // TODO add your handling code here:
         RequeteACMAP req;
+        ReponseACMAP rep = null;
         if(this.AirTrafficControllersGroup.isSelected( this.BusyRB.getModel())){
-            this.NextStepButton.setText("Vérifier chargement baggages");
-            this.AirTrafficControllersGroup.setSelected(this.CheckinOffRB.getModel(), true);
-            req = new RequeteACMAP(RequeteACMAP.REQUEST_CHECKIN_OFF);
+            //Requête Checkin Off//
+            
+            req = new RequeteACMAP(RequeteACMAP.REQUEST_CHECKIN_OFF,selectedVol.ID);
+            this.parent.sendRequeteACMAP(req);
+            
+            rep = this.parent.getResponseACMAP();
+            if(rep == null){
+                System.err.println("La réponse n'a pas été reçue");
+            }
+            else if(rep.getCode() == ReponseACMAP.CHECKIN_OFF_SENT){
+                this.NextStepButton.setText("Vérifier chargement baggages");
+                this.AirTrafficControllersGroup.setSelected(this.CheckinOffRB.getModel(), true);
+            }
+            else{
+                System.err.println("La réponse n'est pas reconnue");
+            }
         }
         else if(this.AirTrafficControllersGroup.isSelected(this.CheckinOffRB.getModel())){
-            this.NextStepButton.setText("Sélectionner une piste");
-            this.AirTrafficControllersGroup.setSelected(this.ReadyRB.getModel(), true);
+            //Requete Is Baggage Loaded//
+            
+            req = new RequeteACMAP(RequeteACMAP.REQUEST_IS_BAGGAGES_LOADED,selectedVol.ID);
+            this.parent.sendRequeteACMAP(req);
+            
+            rep = this.parent.getResponseACMAP();
+            if(rep == null){
+                System.err.println("La réponse n'a pas été reçue");
+            }
+            else if(rep.getCode() == ReponseACMAP.BAGGAGES_LOADED){
+                this.NextStepButton.setText("Sélectionner une piste");
+                this.AirTrafficControllersGroup.setSelected(this.ReadyRB.getModel(), true);
+            }
+            else if(rep.getCode() == ReponseACMAP.BAGGAGES_NOT_LOADED){
+                System.out.println("Les baggages n'ont pas été chargés");
+            }
+
         }
         else if(this.AirTrafficControllersGroup.isSelected(this.ReadyRB.getModel())){
-         this.NextStepButton.setText("Autoriser à décoller");
-            this.AirTrafficControllersGroup.setSelected(this.ReadyToFlyRB.getModel(), true);
+            //Requete Get Lanes
+            
+            req = new RequeteACMAP(RequeteACMAP.REQUEST_GET_LANES);
+            this.parent.sendRequeteACMAP(req);
+            
+            rep = this.parent.getResponseACMAP();
+            if(rep == null){
+                System.err.println("La réponse n'a pas été reçue");
+            }
+            else if(rep.getCode() == ReponseACMAP.SEND_LANES){
+                LanesArray = (Lanes[]) rep.getArray();
+                this.LoadTableGUI();
+                this.SelectionLaneDialog.setVisible(true);
+            }
+            else if(rep.getCode() == ReponseACMAP.NO_LANE_FREE){
+                JOptionPane.showMessageDialog(this, "Il n'y a aucune piste de libre");
+            }
+            
+
         }
         else if(this.AirTrafficControllersGroup.isSelected(this.ReadyToFlyRB.getModel())){
-         this.NextStepButton.setText("Valider décollage");
+            //Pas de Requete physique//
+            this.NextStepButton.setText("Valider décollage");
             this.AirTrafficControllersGroup.setSelected(this.TakingOffRB.getModel(), true);
         }
         else if(this.AirTrafficControllersGroup.isSelected(this.TakingOffRB.getModel())){
-            this.NextStepButton.setText("Fermer la fenêtre");
-            this.AirTrafficControllersGroup.setSelected(this.FlyingRB.getModel(), true);
+            //Requete Unlock Lane//
+            req = new RequeteACMAP(RequeteACMAP.REQUEST_UNLOCK_LANE,this.selectedLane.idLane);
+            this.parent.sendRequeteACMAP(req);
+            
+            rep = this.parent.getResponseACMAP();
+            if(rep == null) System.err.println("La réponse n'a pas été reçue");
+            else if(rep.getCode() == ReponseACMAP.UNLOCK_LANE_OK){
+                this.NextStepButton.setText("Fermer la fenêtre");
+                this.AirTrafficControllersGroup.setSelected(this.FlyingRB.getModel(), true);   
+            }
+            else if(rep.getCode() == ReponseACMAP.UNLOCK_LANE_KO){
+                JOptionPane.showMessageDialog(this, "Le déverrouillage de la piste a échoué!\nVeuillez réessayer ou contacter un technicien");
+            }
         }
         else{
             parent.loadVolsArray();
@@ -320,7 +444,53 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_formWindowClosing
 
+    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+        this.SelectionLaneDialog.dispose();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_StopBTActionPerformed
 
+    private void SelectBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectBTActionPerformed
+        // TODO add your handling code here:
+        if(LanesTable.getSelectedRow()== -1)
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une piste");
+        else
+        {
+            //Requete Lock Lanes//
+            
+            RequeteACMAP req = new RequeteACMAP(RequeteACMAP.REQUEST_LOCK_LANE, LanesArray[LanesTable.getSelectedRow()].idLane);
+            this.parent.sendRequeteACMAP(req);
+            
+            ReponseACMAP rep = this.parent.getResponseACMAP();
+            if(rep == null) System.err.println("La réponse n'a pas été reçue");
+            else if(rep.getCode() == ReponseACMAP.LOCK_LANE_OK){
+                this.NextStepButton.setText("Autoriser à décoller");
+                this.AirTrafficControllersGroup.setSelected(this.ReadyToFlyRB.getModel(), true);
+                this.SelectionLaneDialog.dispose();
+                this.selectedLane = LanesArray[LanesTable.getSelectedRow()];
+                JOptionPane.showMessageDialog(this, "La piste suivante a été verrouillée:\n"+this.selectedLane.nameLane);
+            }
+            else if(rep.getCode() == ReponseACMAP.LOCK_LANE_KO){
+                JOptionPane.showMessageDialog(this.SelectionLaneDialog, "La piste sélectionnée a déjà été verouillée.\nVeuillez en sélectionner une autre");
+            }
+        }
+    }//GEN-LAST:event_SelectBTActionPerformed
+
+ private void LoadTableGUI(){
+        DefaultTableModel dtm = (DefaultTableModel)this.LanesTable.getModel();
+        for(int i = dtm.getRowCount(); i > 0; i--)
+        {
+            dtm.removeRow(i);
+        }
+        
+        for(int i = 0; i < LanesArray.length; i++)
+        {
+            String Vol = LanesArray[i].nameLane;
+            System.out.println(Vol);
+            Vector ligne = new Vector();
+            ligne.add(Vol);
+            dtm.addRow(ligne);
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup AirTrafficControllersGroup;
     private javax.swing.JLabel BusyL;
@@ -332,6 +502,7 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
     private javax.swing.JLabel FlyingL;
     private javax.swing.JPanel FlyingPanel;
     private javax.swing.JRadioButton FlyingRB;
+    private javax.swing.JTable LanesTable;
     private javax.swing.JButton NextStepButton;
     private javax.swing.JLabel ReadyL;
     private javax.swing.JPanel ReadyPanel;
@@ -339,8 +510,12 @@ public class SelectedVol_AirTrafficControllers extends javax.swing.JFrame {
     private javax.swing.JLabel ReadyToFlyL;
     private javax.swing.JPanel ReadyToFlyPanel;
     private javax.swing.JRadioButton ReadyToFlyRB;
+    private javax.swing.JButton SelectBT;
+    private javax.swing.JDialog SelectionLaneDialog;
+    private javax.swing.JButton StopBT;
     private javax.swing.JLabel TakingOffL;
     private javax.swing.JPanel TakingOffPanel;
     private javax.swing.JRadioButton TakingOffRB;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
