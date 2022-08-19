@@ -16,8 +16,9 @@ public class ReponseACMAP implements Reponse, Serializable
 {
     public static int SEND_FLIGHTS = 101;
     public static int NO_FLIGHT_FOUND = 102;
-    public static int BAGGAGES_LOADED = 201;
-    public static int BAGGAGES_NOT_LOADED = 202;
+    public static int CHECKIN_OFF_SENT = 201;
+    public static int BAGGAGES_LOADED = 301;
+    public static int BAGGAGES_NOT_LOADED = 302;
     public static int SEND_LANES = 401;
     public static int NO_LANE_FREE = 402;
     public static int LOCK_LANE_OK = 501;

@@ -26,9 +26,13 @@ import java.util.logging.Logger;
  * @author student
  */
 public class RequeteACMAP implements Requete, Serializable
-{
+{    
+    private static String SERVER_CHECKIN_ADDRESS = "127.0.0.1";
+    private static int PORT_CHECKIN = 25565;
+    
     private static String SERVER_BAGGAGE_ADDRESS = "127.0.0.1";
     private static int PORT_BAGGAGE = 32400;
+
     
     public static int REQUEST_GET_FLIGHTS = 1;
     public static int REQUEST_CHECKIN_OFF = 2;
@@ -124,6 +128,9 @@ public class RequeteACMAP implements Requete, Serializable
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        ReponseACMAP rep = new ReponseACMAP(ReponseACMAP.CHECKIN_OFF_SENT);
+        this.sendReponseACMAP(sock, rep);
     }
     
     private void traiteRequestIsBaggageLoaded(Socket sock, ConsoleServeurAirTrafficControllers cs){
