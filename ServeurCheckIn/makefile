@@ -12,7 +12,7 @@ Application_CheckIn:	Socket_lib.o
 	echo Creation de Application_CheckIn...
 	$(CC) Application_CheckIn.c -o Application_CheckIn Socket_lib.o
 
-AccessBillBag.o:	AccessBillBag.c	AccessBillBag.h
+AccessBillBag.o:	AccessBillBag.c	AccessBillBag.h Socket_lib.h
 	echo Creation de AccessBillBag.o...
 	$(CC) -c AccessBillBag.c -o AccessBillBag.o
 

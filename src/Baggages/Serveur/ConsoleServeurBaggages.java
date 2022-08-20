@@ -18,4 +18,5 @@ public interface ConsoleServeurBaggages extends ConsoleServeur
     public ResultSet getVols();
     public ResultSet getBaggages(int idvol);
     public boolean isAllBaggagesLoaded(int idvol);
+    public boolean checkBillets(String number, int numberAccompanying);
 }

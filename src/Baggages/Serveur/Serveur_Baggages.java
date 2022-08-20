@@ -371,7 +371,7 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
             BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
-            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol+" && Bagages.");
+            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol);
             System.out.println("getBaggages()!!!");
             ResultSet rs = BD.Select(true);
             while(rs.next()){
@@ -382,5 +382,25 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
         return 0;
+    }
+
+    @Override
+    public boolean checkBillets(String number, int numberAccompanying) {
+        try{
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
+            BD.setTable("Billets");
+            BD.setColumns("");
+            BD.setCondition("Billets.idBillets = '"+number +"' && Billets.NbPassagers = "+numberAccompanying);
+            System.out.println("checkBillets()!!!");
+            ResultSet rs = BD.Select(true);
+            while(rs.next()){
+                return rs.getInt(1) > 0;
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
 }
