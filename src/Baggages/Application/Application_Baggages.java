@@ -5,7 +5,8 @@
  */
 package Baggages.Application;
 
-import ProtocoleLUGAP.*;
+import Protocole.LUGAP.ReponseLUGAP;
+import Protocole.LUGAP.RequeteLUGAP;
 import Classes.Baggages;
 import Classes.Vols;
 import java.io.*;
@@ -146,6 +147,11 @@ public class Application_Baggages extends javax.swing.JFrame
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         VolsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -302,7 +308,7 @@ public class Application_Baggages extends javax.swing.JFrame
                     System.out.println(" *** Reponse reçue : " + rep.getCode());
 
                     System.out.println("Vols found");
-                    rs = rep2.getTableVol();
+                    rs = (Vols[])rep2.getReturnArray();
                     try {
                         LoadTable();
                     } catch (SQLException ex) {
@@ -338,7 +344,7 @@ public class Application_Baggages extends javax.swing.JFrame
         this.dispose();
     }//GEN-LAST:event_AnnulerBTActionPerformed
 
-    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+    public void initLogOut(){
         try {
             
             RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGOUT);
@@ -349,8 +355,11 @@ public class Application_Baggages extends javax.swing.JFrame
         } catch (IOException ex) {
             Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
-      // TODO add your handling code here:
-
+    }
+    
+    private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
+        // TODO add your handling code here:
+        this.initLogOut();
     }//GEN-LAST:event_StopBTActionPerformed
 
     private void SelectBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectBTActionPerformed
@@ -380,14 +389,19 @@ public class Application_Baggages extends javax.swing.JFrame
                 Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("Reponse Reçue : "+ rep.getCode());
+             Baggages[] tableBaggage = (Baggages[])rep.getReturnArray();
+            for(int i = 0; tableBaggage[i] != null; i++)
+                System.out.println(tableBaggage[i].AfficheBaggages());
             
-            for(int i = 0; rep.getBaggages()[i] != null; i++)
-                System.out.println(rep.getBaggages()[i].AfficheBaggages());
-            
-            AffichageBaggages BD = new AffichageBaggages(this, false, rep.getBaggages());
+            AffichageBaggages BD = new AffichageBaggages(this, false, tableBaggage);
             BD.setVisible(true);
         }
     }//GEN-LAST:event_SelectBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.initLogOut();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

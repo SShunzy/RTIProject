@@ -7,6 +7,8 @@ package Baggages.Serveur;
 
 import InterfacesRéseaux.Requete;
 import InterfacesRéseaux.SourceTaches;
+import Protocole.CHELUP.RequeteCHELUP;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -45,30 +47,71 @@ public class ThreadClientBaggages extends Thread
             {
                 System.out.println(nom+"> Interruption : " + e.getMessage());
             }
-            boolean log = true;
+            boolean log = true,isAlreadyRead = false;
             System.out.println(nom+"> run de tachesencours");
             ObjectInputStream ois=null;
             Requete req = null;
+            DataInputStream dis = null;
             try
             {
                 ois = new ObjectInputStream(tacheEnCours.getInputStream());
+                System.out.println("ois créé");
+
             }
             catch (IOException e)
             {
-                System.err.println("Erreur ? [" + e.getMessage() + "]");
+                    isAlreadyRead = true;
+                try {
+                    dis = new DataInputStream(tacheEnCours.getInputStream());
+                    System.out.println("dis créé");
+                } catch (IOException ex) {
+                    Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }  
             while(log == true)
             {
-                try {
-                    req = (Requete) ois.readObject();
-                } catch (IOException ex) {
-                    Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
+                if(isAlreadyRead){
+                    try {
+                        System.out.println("isAlreadyRead");
+                        byte[] param = new byte[70];
+             
+                        int i = 0;
+                        boolean isAtTheEnd = false;
+                        System.out.println("param créé");
+                        while(!isAtTheEnd && i < 70){
+                            byte entry = dis.readByte();
+                            System.out.println("entry = "+entry);
+                            if(entry != 0x40){
+                                param[i] = entry;
+                                i++;
+                            }
+                            else{
+                                System.out.println("Fin du message reçue");
+                                isAtTheEnd = true;
+                            }
+                        }
 
-                log = req.createRunnable(tacheEnCours, cs);
+    //                    int numberReads = dis.read(param,0,5);
+                        System.out.println("param = "+new String(param)+"\nNumber of reads:"+i);
+                        req = new RequeteCHELUP(param);
+                    } catch (IOException ex) {
+                        Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                else{
+                    try {
+                        req = (Requete) ois.readObject();
+                    } catch (IOException ex ) {
+                        Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                if(req != null){
+                    System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
+
+                    log = req.createRunnable(tacheEnCours, cs);
+                }
             }
         }
     }

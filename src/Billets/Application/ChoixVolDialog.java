@@ -7,15 +7,18 @@ package Billets.Application;
 
 import Classes.Passagers;
 import Classes.Vols;
-import ProtocoleTICKMAP.RequeteTICKMAP;
+import Protocole.TICKMAP.ReponseTICKMAP;
+import Protocole.TICKMAP.RequeteTICKMAP;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.JOptionPane;
@@ -28,17 +31,20 @@ import javax.swing.table.DefaultTableModel;
 public class ChoixVolDialog extends javax.swing.JDialog 
 {
     private Vols vol;
+    private int prix;
     ArrayList<String> passagersString;
     private Application_Billets AppliBillets;
     /**
      * Creates new form ChoixVolDialog
+     * @param parent
+     * @param modal
      */
     public ChoixVolDialog(java.awt.Frame parent, boolean modal) 
     {
         super(parent, modal);
         initComponents();
         this.AppliBillets = (Application_Billets)parent;
-        this.passagersString = new ArrayList<String>();
+        this.passagersString = new ArrayList<>();
     }
     
     public ChoixVolDialog(java.awt.Frame parent, boolean modal,Vols vol)
@@ -48,7 +54,7 @@ public class ChoixVolDialog extends javax.swing.JDialog
         this.vol = vol;
         IdTF.setText(vol.Destination);
         this.AppliBillets = (Application_Billets)parent;
-        this.passagersString = new ArrayList<String>();
+        this.passagersString = new ArrayList<>();
     }
 
     /**
@@ -242,6 +248,7 @@ public class ChoixVolDialog extends javax.swing.JDialog
         }
     }//GEN-LAST:event_SupprimerBTActionPerformed
 
+    
     private byte[] EncryptPassengers(ArrayList<String> passagers)
     {
         if(passagers.size()>0)
@@ -254,13 +261,8 @@ public class ChoixVolDialog extends javax.swing.JDialog
                 returnString +=passagers.get(i);
             }
             System.out.println("Message crypté = "+returnString);
-            Cipher EncryptClient;
             try {
-                EncryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                EncryptClient.init(Cipher.ENCRYPT_MODE, this.AppliBillets.SessionKey);
-                
-                return EncryptClient.doFinal(returnString.getBytes());
-
+                return this.AppliBillets.EncryptMessage(returnString.getBytes());
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
                 Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -276,8 +278,54 @@ public class ChoixVolDialog extends javax.swing.JDialog
         System.out.println("Envoi des passagers en cours");
         RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_ADD_PASSENGERS, this.EncryptPassengers(passagersString));
         this.AppliBillets.sendRequeteTICKMAP(req);
-        this.AppliBillets.setVisible(true);
-        this.dispose();
+        System.out.println("Passagers Envoyés");
+        ReponseTICKMAP rep = this.AppliBillets.getReponseTICKMAP();
+        if(rep.getCode() == ReponseTICKMAP.VOL_FULL){
+            JOptionPane.showMessageDialog(this, "Il n'y a pas assez de place pour le vol sélectionné.");
+            this.AppliBillets.setVisible(true);
+            this.dispose();
+        }
+        else if(rep.getCode() == ReponseTICKMAP.PASSENGERS_ADDED){
+            String decodedString= "";
+            try {
+                decodedString = new String(this.AppliBillets.DecryptMessage(rep.getCryptedMessage()));
+            } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
+                Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(!decodedString.isEmpty()){
+                ArrayList<Passagers> PassengersArray = new ArrayList<>();
+                String[] parsedString = decodedString.split("@");
+                this.prix = Integer.parseInt(parsedString[0]);
+                String NrCommande = parsedString[1];
+                String showString = "Le prix est de "+this.prix+".\n Vos places sont:";
+                String[] parsedNrSiege = parsedString[2].split("#");
+                for(int i = 0; i < parsedNrSiege.length; i++){
+                    showString += "\n-Nr."+parsedNrSiege[i];
+                }
+                showString += "\nVoulez-vous procéder au paiement?";
+                int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
+                if(result == JOptionPane.YES_OPTION)
+                {
+                    PaymentWindow Payment = new PaymentWindow(this.AppliBillets,"lionelthys",NrCommande,this.prix);
+                    this.AppliBillets.setVisible(true);
+                    Payment.setVisible(true);
+                    this.dispose();
+                }
+                else
+                {
+                    System.out.println("Paiement refusé");
+                    try {
+                        RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED, this.AppliBillets.EncryptMessage(NrCommande.getBytes()));
+                        this.AppliBillets.sendRequeteTICKMAP(reqPaiementRefuse);
+                        this.AppliBillets.setVisible(true);
+                        this.dispose();
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+                        Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+
     }//GEN-LAST:event_EnvoyerBTActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -5,7 +5,6 @@
  */
 package Billets.Serveur;
 
-import Baggages.Serveur.Serveur_Bagages;
 import Classes.Passagers;
 import database.utilities.BDBean;
 import java.sql.ResultSet;
@@ -25,6 +24,11 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeurBillets
 {
+    public static String MySQLConnexion = "jdbc:mysql://localhost:3306/BD_AIRPORT";
+    public static String MySQLUsername = "root";
+    public static String MySQLPassword = "rootmysql11";
+
+    
     public Hashtable tableLogin = new Hashtable();
     private SecretKey SessionKey;
     private int portBillets;
@@ -239,7 +243,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         try {
             BDBean BD = new BDBean();
             
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setColumns("prenom, nom");
             BD.setTable("Agents");
             BD.setCondition("");
@@ -270,9 +274,9 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void setSessionKey(SecretKey sk) 
+    public void setSessionKey(SecretKey sessionKey) 
     {
-        SessionKey = sk;
+        SessionKey = sessionKey;
     }
 
     @Override
@@ -285,7 +289,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
     {
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Vols");
             BD.setColumns("*");
             BD.setCondition("");
@@ -293,74 +297,109 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
             return BD.Select(false);
             
         } catch (SQLException ex) {
-            Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
     @Override
-    public ResultSet getCountPassengers(int idVol) {
-        if(idVol > 0){
-            try {
-                BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
-                BD.setTable("Passagers");
-                BD.setColumns("*");
-                BD.setCondition("Passagers.idVols = "+idVol);
-                System.out.println("getPassagers()!!!");
-                return BD.Select(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+    public int getCountPassengers(int idVol) {
+        int count = 0;
+        try{
+            ResultSet rs = null;
+            if(idVol > 0){
+                try {
+                    BDBean BD = new BDBean();
+                    BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+                    BD.setTable("Passagers");
+                    BD.setColumns("*");
+                    BD.setCondition("Passagers.idVols = "+idVol);
+                    System.out.println("getCountPassengers()!!!");
+                    rs =  BD.Select(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+                 }
             }
-        }
-        else{
-            try {
-                BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
-                BD.setTable("Passagers");
-                BD.setColumns("*");
-                System.out.println("getPassagers()!!!");
-                return BD.Select(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+            else{
+                try {
+                    BDBean BD = new BDBean();
+                    BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+                    BD.setTable("Passagers");
+                    BD.setColumns("*");
+                    System.out.println("getCountPassengers()!!!");
+                    rs = BD.Select(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+            if(rs != null){
+                while(rs.next()){
+                    count = rs.getInt(1);
+                }
+            }   
         }
-        return null;
+        catch (SQLException ex){
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE,null,ex);
+        }
+        return count;
     }
 
     @Override
-    public int insertPassengers(ArrayList<Passagers> passagers) {
-        int result = 0, maxId=this.getMaxIdPassengers();
+    public ArrayList<Passagers> insertPassengers(String username ,ArrayList<Passagers> passagers) {
+        int maxId=this.getMaxIdPassengers();
+        int maxSeatNumber = this.getCountPassengers(passagers.get(0).IdVol);
+        int maxNrCommande = this.createCommand(username, passagers.get(0).IdVol, passagers.size());
         String insertValues = "";
         for(int i = 0; i < passagers.size(); i++)
         {
+            passagers.get(i).SeatNumber = maxSeatNumber + i +1;
             passagers.get(i).IdPassager += maxId;
-            insertValues = insertValues + "( "+passagers.get(i).IdPassager+" ,"+passagers.get(i).IdVol+" ,'"+passagers.get(i).Nom+"' ,'"+passagers.get(i).Prénom+"' ,'"+passagers.get(i).DdN+"'"+")";
+            passagers.get(i).NrCommande = maxNrCommande;
+            insertValues = insertValues + "( "+passagers.get(i).IdPassager+" ,"+passagers.get(i).IdVol+" ,'"+passagers.get(i).Nom+"' ,'"+passagers.get(i).Prénom+"' ,'"+passagers.get(i).DdN+"' ,"+passagers.get(i).SeatNumber+" ,"+passagers.get(i).NrCommande+")";
             if(i<passagers.size()-1)
                 insertValues = insertValues +",";
         }
         System.out.println("insertValues = "+insertValues);
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Passagers");
-            BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance");
+            BD.setColumns("idPassagers, idVols, Nom, Prénom, DateDeNaissance,NuméroSiege,NuméroCommande");
             BD.setValues(insertValues);
-            System.out.println("getPassagers()!!!");
-            result = BD.Insert();
+            System.out.println("insertPassengers()!!!");
+            BD.Insert();
         } 
         catch (SQLException ex) {
-        Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+        Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return result;
+        for(int i = 0 ; i < passagers.size(); i++)
+            System.out.println(i+">Places = "+passagers.get(i).SeatNumber);
+        return passagers;
+    }
+    
+    public int getMaxNrCommande(){
+        int maxNrCommande = 0;
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Cart");
+            BD.setColumns("MAX(NuméroCommande)");
+            ResultSet rs = BD.Select(false);
+            while(rs.next())
+                maxNrCommande = rs.getInt(1);
+        } 
+        catch (SQLException ex) {
+        Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("maxId = "+maxNrCommande);
+        return maxNrCommande;
     }
 
-    @Override
     public int getMaxIdPassengers() {
         int maxId = 0;
         try {
             BDBean BD = new BDBean();
-            BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
             BD.setTable("Passagers");
             BD.setColumns("MAX(idPassagers)");
             System.out.println("getPassagers()!!!");
@@ -369,7 +408,7 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
                 maxId = rs.getInt(1);
         } 
         catch (SQLException ex) {
-        Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+        Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("maxId = "+maxId);
         return maxId;
@@ -380,28 +419,80 @@ public class Serveur_Billets extends javax.swing.JFrame implements ConsoleServeu
         if(idVol > 0){
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Vols");
                 BD.setColumns("*");
                 BD.setCondition("Vols.idVols = "+idVol);
-                System.out.println("getVols()!!!");
+                System.out.println("getSelectedVols()!!!");
                 return BD.Select(false);
             } catch (SQLException ex) {
-                Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         else{
             try {
                 BDBean BD = new BDBean();
-                BD.setConnection("jdbc:mysql://localhost:3306/BD_AIRPORT", "root", "rootmysql11");
+                BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
                 BD.setTable("Vols");
                 BD.setColumns("*");
-                System.out.println("getVols()!!!");
+                System.out.println("getSelectedVols()!!!");
                 return BD.Select(false);
             } catch (SQLException ex) {
-                Logger.getLogger(Serveur_Bagages.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return null;
+    }    
+    
+    private int createCommand(String username, int idVol, int quantity){
+        int maxNrCommande = this.getMaxNrCommande()+1;
+        String insertValues = "( "+maxNrCommande+" ,"+idVol+" ,"+quantity+" ,"+false+" ,'"+username+"')";
+
+        System.out.println("insertValues = "+insertValues);
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Cart");
+            BD.setColumns("NuméroCommande, idVols, Quantité, isPayed, username");
+            BD.setValues(insertValues);
+            System.out.println("insertCommande()");
+            BD.Insert();
+            return maxNrCommande;
+        } 
+        catch (SQLException ex) {
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+            return -1;
+        }
     }
+
+    @Override
+    public void removePassengers(int NrCommande) {
+        
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Passagers");
+            BD.setCondition("NuméroCommande = "+NrCommande);
+            BD.Delete();
+        } 
+        catch (SQLException ex) {
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override    
+    public void setCartPayed(int NrCommande){
+        try{
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Billets.MySQLConnexion,Serveur_Billets.MySQLUsername ,Serveur_Billets.MySQLPassword );
+            BD.setTable("Cart");
+            BD.setValues("isPayed = true");
+            BD.setCondition("NuméroCommande = "+NrCommande);
+            BD.Update();
+        }
+        catch (SQLException ex){
+            Logger.getLogger(Serveur_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

@@ -7,8 +7,8 @@ package Billets.Application;
 
 import Baggages.Application.Application_Baggages;
 import Classes.Vols;
-import ProtocoleTICKMAP.ReponseTICKMAP;
-import ProtocoleTICKMAP.RequeteTICKMAP;
+import Protocole.TICKMAP.ReponseTICKMAP;
+import Protocole.TICKMAP.RequeteTICKMAP;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,20 +17,29 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.AlgorithmParameters;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  *
@@ -38,6 +47,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Application_Billets extends javax.swing.JFrame 
 {
+    public static String CertificateRepository = "/home/student/NetBeansProjects/RTIProjectGit/Certificats/";
+    
     public SecretKey SessionKey;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
@@ -66,6 +77,11 @@ public class Application_Billets extends javax.swing.JFrame
         VolsTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         SelectBT.setText("Sélectionner");
         SelectBT.addActionListener(new java.awt.event.ActionListener() {
@@ -136,10 +152,14 @@ public class Application_Billets extends javax.swing.JFrame
 
     private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
         System.out.println("Déconnexion en cours");
-        RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_LOGOUT);
-        this.sendRequeteTICKMAP(req);
-        this.dispose();        // TODO add your handling code here:
+        this.initLogOut();
+              // TODO add your handling code here:
     }//GEN-LAST:event_StopBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.initLogOut();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -180,6 +200,12 @@ public class Application_Billets extends javax.swing.JFrame
         });
     }
     
+    public void initLogOut(){
+        RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_LOGOUT);
+        this.sendRequeteTICKMAP(req);
+        this.dispose();  
+    }
+    
     public void initConnexion(String adresse, int port)
     {
         try
@@ -195,6 +221,18 @@ public class Application_Billets extends javax.swing.JFrame
         {
             System.err.println("Erreur ! Pas de connexion? [" + ex + "]");
         }
+    }
+    
+    public byte[] DecryptMessage(byte[] cryptedMessage) throws InvalidKeyException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        Cipher DecryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        DecryptClient.init(Cipher.DECRYPT_MODE, this.SessionKey);
+        return DecryptClient.doFinal(cryptedMessage);
+    }
+
+     byte[] EncryptMessage(byte[] unCryptedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher EncryptClient = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        EncryptClient.init(Cipher.ENCRYPT_MODE, this.SessionKey);
+        return EncryptClient.doFinal(unCryptedMessage);
     }
 
     public void setTableVol(Vols[] VolArray)
@@ -261,6 +299,7 @@ public class Application_Billets extends javax.swing.JFrame
         {
             ois = new ObjectInputStream(cliSock.getInputStream());
             rep = (ReponseTICKMAP)ois.readObject();
+            System.out.println("Réponse reçue");
         }
         catch (IOException ex) 
         {
@@ -287,6 +326,19 @@ public class Application_Billets extends javax.swing.JFrame
         {
             System.out.println("Le certificat est valide");
             return true;
+        }
+    }
+    
+    private byte[] createSignature(byte[]message ,SecretKey key)
+    {
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+            Mac hmac = Mac.getInstance("HMAC-MD5", "BC");
+            hmac.init(key);
+            return hmac.doFinal(message);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
     }
     
@@ -322,7 +374,7 @@ public class Application_Billets extends javax.swing.JFrame
             try
             {
                 KeyStore ks = KeyStore.getInstance("JKS");
-                ks.load(new FileInputStream("/home/student/Certificats/Client.key"),"student1".toCharArray());
+                ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Client.key"),"student1".toCharArray());
                 
                 if(this.CheckCertificate(ks,rep.getCertificate()))
                 {
@@ -395,6 +447,44 @@ public class Application_Billets extends javax.swing.JFrame
         }
     }
     
+    public void traitePaymentAccepted(String NrCommande){
+        System.out.println("Paiement accepté");
+        try {
+            String Message = "lionelthys@"+NrCommande;
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            byte[] Signature = this.createSignature(Message.getBytes(),(SecretKey) ks.getKey("lionelthys", "student1".toCharArray()));
+            
+            RequeteTICKMAP reqPaiementAccepte = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_ACCEPTED,this.EncryptMessage(Message.getBytes()),Signature );
+            this.sendRequeteTICKMAP(reqPaiementAccepte);
+            this.setVisible(true);
+            
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (KeyStoreException | IOException | CertificateException | UnrecoverableKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void traitePaiementRefused(String NrCommande){
+        System.out.println("Paiement refusé");
+        try {
+            String Message = "lionelthys@"+NrCommande;
+            
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(Application_Billets.CertificateRepository+"Agents.jce"),"student1".toCharArray());
+            byte[] Signature = this.createSignature(Message.getBytes(),(SecretKey) ks.getKey("lionelthys", "student1".toCharArray()));
+            
+            RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED,this.EncryptMessage(Message.getBytes()),Signature );
+            this.sendRequeteTICKMAP(reqPaiementRefuse);
+            this.setVisible(true);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (KeyStoreException | IOException | CertificateException | UnrecoverableKeyException ex) {
+            Logger.getLogger(Application_Billets.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton SelectBT;

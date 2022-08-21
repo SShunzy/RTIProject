@@ -13,22 +13,30 @@ import java.io.Serializable;
  */
 public class Baggages implements Serializable
 {
-    public int ID;
-    public float Poids;
-    public String IdBillet;
-    public boolean IsValise;
+    public static int STATUS_LOADED = 1;
+    public static int STATUS_NOT_LOADED = 0;
+    public static int STATUS_REFUSED = 2;
+    
+    public int ID, loaded;
+    public float weight;
+    public String IdBillet,remarks;
+    public boolean IsValise, isVerified,isReceived;
     
     public Baggages (int ID, String idbillet, float poids,boolean isvalise)
     {
         this.ID = ID;
         this.IdBillet = idbillet;
-        this.Poids = poids;
+        this.weight = poids;
         this.IsValise= isvalise;
+        this.loaded = 0;
+        this.isReceived = false;
+        this.isVerified = false;
+        this.remarks = "";
     }
     
     public String AfficheBaggages()
     {
-        String str = "ID: "+ID+" Billets: "+IdBillet+" Poids: "+Poids+" Valise: "+IsValise;
+        String str = "ID: "+ID+" Billets: "+IdBillet+" Poids: "+weight+" Valise: "+IsValise;
         return str;
     }
 }

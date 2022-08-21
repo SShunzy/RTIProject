@@ -5,24 +5,16 @@
  */
 package Billets.Application;
 
+import Protocole.TICKMAP.RequeteTICKMAP;
 import Baggages.Application.Application_Baggages;
-import ProtocoleTICKMAP.*;
 import java.awt.Dimension;
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.*;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -71,6 +63,11 @@ public class LoginBillets extends javax.swing.JDialog
         PasswordPF = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         LoginL.setText("Login :");
 
@@ -211,6 +208,12 @@ public class LoginBillets extends javax.swing.JDialog
         }
         
     }//GEN-LAST:event_ConnexionBTActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        parent.initLogOut();
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
 
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

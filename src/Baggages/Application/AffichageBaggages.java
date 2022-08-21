@@ -16,21 +16,19 @@ import javax.swing.table.DefaultTableModel;
  */
 public class AffichageBaggages extends javax.swing.JDialog {
 
-    private Baggages[] bag;
-    /**
-     * Creates new form Baggages
-     */
+    private Baggages[] BaggageArray;
+
     public AffichageBaggages(java.awt.Frame parent, boolean modal, Baggages[] bag) {
         super(parent, modal);
         initComponents();
         if(bag != null)
         {
-            this.bag = bag;
+            this.BaggageArray = bag;
         }
         else
         {
-            this.bag = new Baggages[1];
-            this.bag[0] = null;
+            this.BaggageArray = new Baggages[1];
+            this.BaggageArray[0] = null;
         }
         LoadBaggages();
     }
@@ -174,12 +172,12 @@ public class AffichageBaggages extends javax.swing.JDialog {
         DefaultTableModel dtm = (DefaultTableModel) this.BagTable.getModel();
         for(int i = dtm.getRowCount(); i>0;i++)
             dtm.removeRow(i);
-        for(int i = 0; bag[i]!=null;i++)
+        for(int i = 0; BaggageArray[i]!=null;i++)
         {
             Vector ligne = new Vector();
-            ligne.add(bag[i].IdBillet);
-            ligne.add(bag[i].Poids);
-            if(bag[i].IsValise)
+            ligne.add(BaggageArray[i].IdBillet);
+            ligne.add(BaggageArray[i].weight);
+            if(BaggageArray[i].IsValise)
                 ligne.add("VALISE");
             else
                 ligne.add("PAS VALISE");

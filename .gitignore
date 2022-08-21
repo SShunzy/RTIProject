@@ -6,3 +6,9 @@
 /RTI/build/
 /RTI/nbproject/private/
 /nbproject/private/
+/database.utilities/build/
+/database.utilities/dist/
+/database.utilities/nbproject/private/
+/EnvoiServlet/DataBase_Lib/build/
+/EnvoiServlet/DataBase_Lib/dist/
+/EnvoiServlet/DataBase_Lib/nbproject/private/
