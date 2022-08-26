@@ -6,8 +6,17 @@
 package Baggages.Application;
 
 import Classes.Baggages;
+import Protocole.LUGAP.ReponseLUGAP;
+import Protocole.LUGAP.RequeteLUGAP;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -17,8 +26,9 @@ import javax.swing.table.DefaultTableModel;
 public class AffichageBaggages extends javax.swing.JDialog {
 
     private Baggages[] BaggageArray;
+    private Application_Baggages parent;
 
-    public AffichageBaggages(java.awt.Frame parent, boolean modal, Baggages[] bag) {
+    public AffichageBaggages(java.awt.Frame parent, boolean modal, Baggages[] bag, Application_Baggages AB) {
         super(parent, modal);
         initComponents();
         if(bag != null)
@@ -30,6 +40,7 @@ public class AffichageBaggages extends javax.swing.JDialog {
             this.BaggageArray = new Baggages[1];
             this.BaggageArray[0] = null;
         }
+        this.parent = AB;
         LoadBaggages();
     }
 
@@ -66,9 +77,28 @@ public class AffichageBaggages extends javax.swing.JDialog {
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.Float.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, true, true, true, true
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        BagTable.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                BagTableInputMethodTextChanged(evt);
+            }
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
+        BagTable.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                BagTablePropertyChange(evt);
             }
         });
         jScrollPane2.setViewportView(BagTable);
@@ -115,78 +145,117 @@ public class AffichageBaggages extends javax.swing.JDialog {
         if(bcl == true)
         {
             System.out.println("Fermeture");
-            super.setVisible(true);
+            this.parent.setVisible(true);
             this.dispose();
         }
         else
             JOptionPane.showMessageDialog(this, "Il reste des baggages à charger ou à refuser");
     }//GEN-LAST:event_CloseBTActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AffichageBaggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AffichageBaggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AffichageBaggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AffichageBaggages.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
+    private void BagTableInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_BagTableInputMethodTextChanged
+        // TODO add your handling code here:
+        System.out.println("Retour = \n");
+        Baggages[] array = this.TableToBaggageArray(BagTable);
+        for(int i = 0; i < array.length ; i++)
+            System.out.println(i+". "+array[i].AfficheBaggages());
+        
+    }//GEN-LAST:event_BagTableInputMethodTextChanged
 
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                AffichageBaggages dialog = new AffichageBaggages(new javax.swing.JFrame(), true,null);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+    private void BagTablePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_BagTablePropertyChange
+        // TODO add your handling code here:
+        if(this.isVisible()){
+            Baggages[] array = this.TableToBaggageArray(BagTable);
+            if(array != null && this.BaggageArray != null && !array.equals(this.BaggageArray)){
+                parent.SendRequeteLUGAP(new RequeteLUGAP(RequeteLUGAP.REQUEST_UPDATE_BAGGAGES,array));
+                ReponseLUGAP rep = parent.getReponseLUGAP();
+                if(rep.getCode() == ReponseLUGAP.UPDATE_BAGGAGES_ERROR)
+                    System.err.println("Erreur dans la mise à jour de baggages");
+                else if(rep.getCode() == ReponseLUGAP.UPDATE_BAGGAGES_SUCCESS)
+                    System.out.println("Mise à jour des baggages réussie");     
             }
-        });
-    }
-    
+        }
+    }//GEN-LAST:event_BagTablePropertyChange
+
     private void LoadBaggages()
     {
         DefaultTableModel dtm = (DefaultTableModel) this.BagTable.getModel();
         for(int i = dtm.getRowCount(); i>0;i++)
             dtm.removeRow(i);
         for(int i = 0; BaggageArray[i]!=null;i++)
-        {
-            Vector ligne = new Vector();
-            ligne.add(BaggageArray[i].IdBillet);
-            ligne.add(BaggageArray[i].weight);
-            if(BaggageArray[i].IsValise)
-                ligne.add("VALISE");
-            else
-                ligne.add("PAS VALISE");
-            ligne.add("N");
-            ligne.add("N");
-            ligne.add("N");
-            ligne.add("NEANT");
-            dtm.addRow(ligne);
+        {   
+            dtm.addRow(BaggageToVector(BaggageArray[i]));
         }
+    }
+    
+    private Baggages[] TableToBaggageArray(JTable table){
+        int size = table.getRowCount();
+        DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+        Baggages[] returnArray = new Baggages[size];
+        if(size  == 0) return null;
+        for(int i = 0; i < size ; i++){                    
+            boolean isReceived = false, isVerified = false, isValise = false;
+            int loadStatus = 0, id = 0;
+            float weight = 0;
+            String idBillet = "", remarks = ""; 
+
+            String[] splitArray = ((String) dtm.getValueAt(i,0)).split("-\n");
+            
+            id = Integer.parseInt(splitArray[1]);
+            idBillet = splitArray[0];
+            weight = (float) dtm.getValueAt(i, 1);
+            isValise = ((String)dtm.getValueAt(i,2)).compareTo("O") == 0;
+            isReceived = ((String)dtm.getValueAt(i,3)).compareTo("O") == 0;
+            if(((String)dtm.getValueAt(i,4)).compareTo("O") == 0){
+                loadStatus = Baggages.STATUS_LOADED;
+            }
+            else if(((String)dtm.getValueAt(i,4)).compareTo("R") == 0)
+                loadStatus = Baggages.STATUS_REFUSED;
+            else
+                loadStatus = Baggages.STATUS_NOT_LOADED;
+            isVerified = ((String)dtm.getValueAt(i,5)).compareTo("O") == 0;
+            remarks = (String) dtm.getValueAt(i, 6);
+
+            System.out.println(" nouveau baggage = "+id+" - "+idBillet+" "+weight+" "+isValise+" "+isReceived+" "+loadStatus+" "+isVerified+" "+remarks);
+            
+            returnArray[i] = new Baggages(id,idBillet,weight,isValise,isReceived,loadStatus,isVerified,remarks);
+        }
+        
+        return returnArray;
+    }
+    
+    private Vector BaggageToVector(Baggages baggage){
+        Vector ligne = new Vector();
+        ligne.add(baggage.IdBillet + "-\n" + baggage.ID);
+        ligne.add(baggage.weight);
+
+        if(baggage.IsValise)
+            ligne.add("VALISE");
+        else
+            ligne.add("PAS VALISE");
+
+        if(baggage.isReceived)
+            ligne.add("O");
+        else
+            ligne.add("N");
+
+        if(baggage.loadedState == Baggages.STATUS_LOADED)
+            ligne.add("O");
+        else if(baggage.loadedState == Baggages.STATUS_REFUSED)
+            ligne.add("R");
+        else
+            ligne.add("N");
+
+        if(baggage.isVerified)
+            ligne.add("O");
+        else
+            ligne.add("N");
+
+        if(baggage.remarks.compareTo("") == 0 || baggage.remarks.compareTo("NEANT") == 0)
+            ligne.add("NEANT");
+        else 
+            ligne.add(baggage.remarks);
+
+        return ligne;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

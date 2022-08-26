@@ -255,106 +255,82 @@ public class Application_Baggages extends javax.swing.JFrame
             System.err.println("Erreur ! Pas de connexion? [" + ex + "]");
         }
         
-        try
-        {
-            oos = new ObjectOutputStream(cliSock.getOutputStream());
-            oos.writeObject(req);oos.flush();
-        } 
-        catch (IOException ex) 
-        {
-            System.err.println("Erreur réseau ? [" + ex.getMessage() + "]");
-        }
+        this.SendRequeteLUGAP(req);
         
-        ReponseLUGAP rep = null;
-        
-        try
+        ReponseLUGAP rep = this.getReponseLUGAP();
+        System.out.println(" *** Reponse reçue : " + rep.getChargeUtile());
+        if(rep.getCode() == ReponseLUGAP.LOGIN_OK)
         {
-            ois = new ObjectInputStream(cliSock.getInputStream());
-            rep = (ReponseLUGAP)ois.readObject();
-        }
-        catch (IOException ex) 
-        {
-            System.out.println("--- erreur IO = " + ex.getMessage());        
-        } 
-        catch (ClassNotFoundException ex) 
-        {
-            System.out.println("--- erreur sur la classe = " + ex.getMessage());        
-        }
-            System.out.println(" *** Reponse reçue : " + rep.getChargeUtile());
-            if(rep.getCode() == ReponseLUGAP.LOGIN_OK)
+            System.out.println("Bon Password");
+            req = new RequeteLUGAP(RequeteLUGAP.REQUEST_GET_VOLS);
+            this.SendRequeteLUGAP(req);
+            ReponseLUGAP rep2 = this.getReponseLUGAP();
+            if(rep2.getCode() == ReponseLUGAP.VOLS_FOUND)
             {
-                System.out.println("Bon Password");
-                req = new RequeteLUGAP(RequeteLUGAP.REQUEST_VOLS);
-                try 
-                {
-                    oos.writeObject(req);
-                    oos.flush();
-                } catch (IOException ex) {
-                    Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                System.out.println(" *** Reponse reçue : " + rep.getCode());
 
-                    ReponseLUGAP rep2 = null;
-                try 
-                {
-                    ois = new ObjectInputStream(cliSock.getInputStream());
-                    rep2 = (ReponseLUGAP)ois.readObject();
-                } catch (IOException ex) {
-                    Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
+                System.out.println("Vols found");
+                rs = (Vols[])rep2.getReturnArray();
+                try {
+                    LoadTable();
+                } catch (SQLException ex) {
                     Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                if(rep2.getCode() == ReponseLUGAP.VOLS_FOUND)
-                {
-                    System.out.println(" *** Reponse reçue : " + rep.getCode());
-
-                    System.out.println("Vols found");
-                    rs = (Vols[])rep2.getReturnArray();
-                    try {
-                        LoadTable();
-                    } catch (SQLException ex) {
-                        Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    this.Connexion.dispose();
-                    this.setVisible(true);
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(this, "Il n'y a aucun vol, l'application va se fermer");
-                    try {
-                        cliSock.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    this.dispose();
-                }
-            }
-            else if(rep.getCode() == ReponseLUGAP.WRONG_PASSWORD)
-            {
-                JOptionPane.showMessageDialog(this, "Le Password est incorrect!");
+                this.Connexion.dispose();
+                this.setVisible(true);
             }
             else
             {
-                JOptionPane.showMessageDialog(this, "Le Login est incorrect!");
-            } 
+                JOptionPane.showMessageDialog(this, "Il n'y a aucun vol, l'application va se fermer");
+                try {
+                    cliSock.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                this.dispose();
+            }
+        }
+        else if(rep.getCode() == ReponseLUGAP.WRONG_PASSWORD)
+        {
+            JOptionPane.showMessageDialog(this, "Le Password est incorrect!");
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Le Login est incorrect!");
+        } 
         
     }//GEN-LAST:event_ConnexionBTActionPerformed
 
+    public void SendRequeteLUGAP(RequeteLUGAP req){
+        try {
+            if(oos == null)
+                oos = new ObjectOutputStream(cliSock.getOutputStream());
+            oos.writeObject(req); oos.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public ReponseLUGAP getReponseLUGAP(){
+        ReponseLUGAP rep = null;
+        try {
+                ois = new ObjectInputStream(cliSock.getInputStream());
+            rep = (ReponseLUGAP) ois.readObject();
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return rep;
+    }
+    
     private void AnnulerBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AnnulerBTActionPerformed
         // TODO add your handling code here:
         this.dispose();
     }//GEN-LAST:event_AnnulerBTActionPerformed
 
     public void initLogOut(){
-        try {
-            
-            RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGOUT);
-            if(oos == null)
-                oos = new ObjectOutputStream(cliSock.getOutputStream());
-            oos.writeObject(req); oos.flush();
-            this.dispose();  
-        } catch (IOException ex) {
-            Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGOUT);
+        this.SendRequeteLUGAP(req);
+        this.dispose();
     }
     
     private void StopBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopBTActionPerformed
@@ -369,31 +345,16 @@ public class Application_Baggages extends javax.swing.JFrame
         else
         {
             System.out.println("Select non nul : "+VolsTable.getSelectedRow()+". "+rs[VolsTable.getSelectedRow()].StringTable());
-            RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_BAGGAGES,rs[VolsTable.getSelectedRow()]);
-            try 
-            {
-                oos.writeObject(req);
-                oos.flush();
-            } catch (IOException ex) {
-                Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_GET_BAGGAGES,rs[VolsTable.getSelectedRow()]);
+            this.SendRequeteLUGAP(req);
             System.out.println("RequeteEnvoyee");
-            ReponseLUGAP rep = null;
-            try 
-            {
-                ois = new ObjectInputStream(cliSock.getInputStream());
-                rep = (ReponseLUGAP)ois.readObject();
-            } catch (IOException ex) {
-                Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            ReponseLUGAP rep = this.getReponseLUGAP();
             System.out.println("Reponse Reçue : "+ rep.getCode());
-             Baggages[] tableBaggage = (Baggages[])rep.getReturnArray();
+            Baggages[] tableBaggage = (Baggages[])rep.getReturnArray();
             for(int i = 0; tableBaggage[i] != null; i++)
                 System.out.println(tableBaggage[i].AfficheBaggages());
             
-            AffichageBaggages BD = new AffichageBaggages(this, false, tableBaggage);
+            AffichageBaggages BD = new AffichageBaggages(this, false, tableBaggage,this);
             BD.setVisible(true);
         }
     }//GEN-LAST:event_SelectBTActionPerformed
