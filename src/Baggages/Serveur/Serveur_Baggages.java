@@ -5,7 +5,10 @@
  */
 package Baggages.Serveur;
 
+import Classes.Baggages;
+import Protocole.LUGAP.ReponseLUGAP;
 import database.utilities.BDBean;
+import java.net.Socket;
 import java.util.*;
 import javax.swing.table.*;
 import java.security.Security;
@@ -27,7 +30,7 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
     
     public Hashtable tableLogin = new Hashtable();
     private int portBagages;
-    private int portCheckin = 32000;
+    private int portCheckin = 32400;
     private ThreadServeurBaggages ts;
     /**
      * Creates new form Serveur_Bagages
@@ -330,7 +333,7 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             BDBean BD = new BDBean();
             BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
-            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
+            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise, Bagages.isReceived, Bagages.loadedStatus, Bagages.isVerified, Bagages.remarks");
             BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+Idvol);
             System.out.println("getBaggages()!!!");
             return BD.Select(false);
@@ -351,7 +354,7 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             BDBean BD = new BDBean();
             BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
-            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
+            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise, Bagages.isReceived, Bagages.loadedStatus, Bagages.isVerified, Bagages.remarks");
             BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol);
             System.out.println("getBaggages()!!!");
             ResultSet rs = BD.Select(true);
@@ -370,9 +373,8 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             BDBean BD = new BDBean();
             BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
             BD.setTable("Bagages inner join Billets");
-            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise");
-            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol);
-            System.out.println("getBaggages()!!!");
+            BD.setColumns("Bagages.idBagages, Bagages.idBillets, Bagages.Poids, Bagages.isValise, Bagages.isReceived, Bagages.loadedStatus, Bagages.isVerified, Bagages.remarks");
+            BD.setCondition("Bagages.idBillets = Billets.idBillets && Billets.IdVol = "+idVol+" && (Bagages.loadedStatus = 1 || Bagages.loadedStatus = 2)");
             ResultSet rs = BD.Select(true);
             while(rs.next()){
                 return rs.getInt(1);
@@ -402,5 +404,29 @@ public class Serveur_Baggages extends javax.swing.JFrame implements ConsoleServe
             Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
+    }
+
+    @Override
+    public void sendBroadcastResponse(ReponseLUGAP rep) {
+        this.ts.SendBroadcastResponse(rep);
+    }
+
+    @Override
+    public boolean updateBaggages(Baggages[] baggageArray) {
+        try {
+            BDBean BD = new BDBean();
+            BD.setConnection(Serveur_Baggages.MySQLConnexion, Serveur_Baggages.MySQLUsername, Serveur_Baggages.MySQLPassword);
+            BD.setTable("Bagages");
+            for(int i = 0; i < baggageArray.length; i++){
+                BD.setValues("isReceived = "+baggageArray[i].isReceived+" , loadedStatus = "+baggageArray[i].loadedState+" , isVerified = "+baggageArray[i].isVerified+" , remarks = '"+baggageArray[i].remarks+"'");
+                BD.setCondition("IdBagages = "+baggageArray[i].ID);
+                BD.Update();
+            }
+            return true;
+           
+        } catch (SQLException ex) {
+            Logger.getLogger(Serveur_Baggages.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 }
