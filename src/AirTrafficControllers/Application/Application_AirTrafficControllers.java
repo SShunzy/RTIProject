@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Application_AirTrafficControllers extends javax.swing.JFrame {
     private static final String SERVER_ADDRESS = "127.0.0.1";
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 8000;
     
     private Socket cliSock;
     private ObjectOutputStream oos;
@@ -181,7 +181,7 @@ public class Application_AirTrafficControllers extends javax.swing.JFrame {
         DefaultTableModel dtm = (DefaultTableModel)this.VolsTable.getModel();
         for(int i = dtm.getRowCount(); i > 0; i--)
         {
-            dtm.removeRow(i);
+            dtm.removeRow(i-1);
         }
         
         for(int i = 0; i < this.VolsArray.length; i++)
