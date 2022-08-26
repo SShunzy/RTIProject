@@ -289,23 +289,22 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
         BDBean BD = new BDBean();
             
         BD.setConnection(Serveur_AirTrafficControllers.MySQLConnexion,Serveur_AirTrafficControllers.MySQLUsername ,Serveur_AirTrafficControllers.MySQLPassword );
-        BD.setColumns("IdPiste, NomPiste, isOccupied");
+        BD.setColumns("*");
         BD.setTable("Pistes");
-        BD.setCondition("isOccupied = false");
+        BD.setCondition("NOT isOccupied");
 
         ResultSet rs = BD.Select(false);
 
-        if(rs.last()){
+        if(!rs.isBeforeFirst()){
             throw new SQLException();
         }
-        rs.beforeFirst();
-
         ArrayList<Lanes> LanesArray = new ArrayList<>();
 
         while(rs.next())
         {
             LanesArray.add(new Lanes(rs));
         }
+        System.out.println("nombre piste = "+LanesArray.size());
         return LanesArray;    
     }
 
