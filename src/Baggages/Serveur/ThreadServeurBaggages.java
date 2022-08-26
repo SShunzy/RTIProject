@@ -7,6 +7,7 @@ package Baggages.Serveur;
 
 
 import InterfacesRéseaux.*;
+import Protocole.LUGAP.ReponseLUGAP;
 import java.net.*;
 import java.io.*;
 import java.util.logging.Level;
@@ -33,7 +34,21 @@ public class ThreadServeurBaggages extends Thread
        this.NbClients = NC;
        thr = new ThreadClientBaggages[NbClients];
     }
-
+    
+    public void SendBroadcastResponse(ReponseLUGAP rep){
+        for(int i = 0; i < NbClients ; i++){
+            Socket cliSock = thr[i].getTacheEnCours();
+            if(cliSock != null){
+                try {
+                    ObjectOutputStream oos = new ObjectOutputStream(cliSock.getOutputStream());
+                    oos.writeObject(rep); oos.flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(ThreadServeurBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
     public void run()
     {
         try

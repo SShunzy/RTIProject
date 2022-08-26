@@ -33,11 +33,16 @@ public class ThreadClientBaggages extends Thread
         this.cs = cs;
     }
     
+    public Socket getTacheEnCours(){
+        return this.tacheEnCours;
+    }
+    
     @Override
     public void run()
     {
         while (!isInterrupted())
         {
+            tacheEnCours = null;
             try
             {
                 System.out.println(nom+"> Thread client avant get");
@@ -60,7 +65,7 @@ public class ThreadClientBaggages extends Thread
             }
             catch (IOException e)
             {
-                    isAlreadyRead = true;
+                isAlreadyRead = true;
                 try {
                     dis = new DataInputStream(tacheEnCours.getInputStream());
                     System.out.println("dis créé");
@@ -75,15 +80,16 @@ public class ThreadClientBaggages extends Thread
                         System.out.println("isAlreadyRead");
                         byte[] param = new byte[70];
              
-                        int i = 0;
+                        int numberReads = 0;
                         boolean isAtTheEnd = false;
                         System.out.println("param créé");
-                        while(!isAtTheEnd && i < 70){
-                            byte entry = dis.readByte();
+                        while(!isAtTheEnd && numberReads < 70){
+                            byte entry;
+                            entry = dis.readByte();
                             System.out.println("entry = "+entry);
                             if(entry != 0x40){
-                                param[i] = entry;
-                                i++;
+                                param[numberReads] = entry;
+                                numberReads++;
                             }
                             else{
                                 System.out.println("Fin du message reçue");
@@ -91,8 +97,8 @@ public class ThreadClientBaggages extends Thread
                             }
                         }
 
-    //                    int numberReads = dis.read(param,0,5);
-                        System.out.println("param = "+new String(param)+"\nNumber of reads:"+i);
+                       //int numberReads = dis.read(param,0,5);
+                        System.out.println("param = "+new String(param)+"\nNumber of reads:"+numberReads);
                         req = new RequeteCHELUP(param);
                     } catch (IOException ex) {
                         Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
