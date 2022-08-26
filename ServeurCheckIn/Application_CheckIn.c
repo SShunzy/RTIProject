@@ -108,9 +108,14 @@ int main()
             }
             printf("Reponse recue : %s\n", Message);
 
-            if(strcmp(Message, "TICKET_OK") != 0)
+            if(strcmp(Message, "TICKET_KO") == 0)
             {
                 printf("Ticket non trouve !\n");
+                break;
+            }
+            else if(strcmp(Message, "STOP_CHECKIN") == 0)
+            {
+                printf("*** FIN DES OPERATIONS DE CHECK-IN ! ***\n");
                 break;
             }
             printf("Ticket trouve !\n");

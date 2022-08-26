@@ -161,6 +161,24 @@ void * ThreadClient_CIMP(void*)
                 printf("Reponse envoyee\n");
             }
 
+            if(strcmp(protocol, "STOP_CHECKIN") == 0)
+            {
+                printf("Demande d'arrêt du check-in\n");
+                for(int i = 0; i < NB_CLIENTS ; i++ )
+                {
+                    strcpy(Message,"STOP_CHECKIN"); 
+                    if(hSocketService[i] != -1)
+                    {
+                        if(Send(hSocketService[i],Message, strlen(Message)+1) == -1)
+                        {
+                            printf("Erreur d'envoi de la reponse\n");
+                            pthread_exit(NULL);
+                        }
+                        printf("Reponse envoyee\n");
+                    }
+                }
+            }
+
             if(strcmp(protocol, "OFFICER_LOGOUT") == 0)
             {
                 printf("Demande de deconnexion recue !\n");
