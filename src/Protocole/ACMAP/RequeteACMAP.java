@@ -12,6 +12,7 @@ import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
 import Protocole.LUGAP.ReponseLUGAP;
 import Protocole.LUGAP.RequeteLUGAP;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,8 +28,8 @@ import java.util.logging.Logger;
  */
 public class RequeteACMAP implements Requete, Serializable
 {    
-    private static String SERVER_CHECKIN_ADDRESS = "127.0.0.1";
-    private static int PORT_CHECKIN = 25565;
+    private static String SERVER_CHECKIN_ADDRESS = "192.168.182.128";
+    private static int PORT_CHECKIN = 8080;
     
     private static String SERVER_BAGGAGE_ADDRESS = "127.0.0.1";
     private static int PORT_BAGGAGE = 32400;
@@ -96,6 +97,11 @@ public class RequeteACMAP implements Requete, Serializable
             this.traiteRequestLockLanes(s,(ConsoleServeurAirTrafficControllers) cs);
             return true;
         }
+        else if(type == RequeteACMAP.REQUEST_UNLOCK_LANE){
+            System.out.println("Requete Unlock Lane");
+            this.traiteRequestUnlockLane(s,(ConsoleServeurAirTrafficControllers) cs);
+            return true;
+        }
         else if(type == RequeteACMAP.REQUEST_LOGOUT){
             System.out.println("Requete Log Out");
             this.traiteRequeteLogOut(s,(ConsoleServeurAirTrafficControllers) cs);
@@ -128,6 +134,20 @@ public class RequeteACMAP implements Requete, Serializable
         // Affichage des informations
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        
+        try {
+            Socket SCheckIn = new Socket(SERVER_CHECKIN_ADDRESS,PORT_CHECKIN);
+            DataOutputStream dosCheckIn = new DataOutputStream(SCheckIn.getOutputStream());
+            
+            dosCheckIn.writeBytes("STOP_CHECKIN@");dosCheckIn.flush();
+            
+            Socket SBaggages = new Socket(SERVER_BAGGAGE_ADDRESS,PORT_BAGGAGE);
+            ObjectOutputStream oosBaggage = new ObjectOutputStream(SBaggages.getOutputStream());
+            oosBaggage.writeObject(new RequeteLUGAP(RequeteLUGAP.REQUEST_STOP_CHECKIN)); oosBaggage.flush();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(RequeteACMAP.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         ReponseACMAP rep = new ReponseACMAP(ReponseACMAP.CHECKIN_OFF_SENT);
         this.sendReponseACMAP(sock, rep);
