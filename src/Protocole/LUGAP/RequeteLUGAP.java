@@ -26,14 +26,18 @@ import java.util.logging.Logger;
 public class RequeteLUGAP implements Requete, Serializable
 {
     public static int REQUEST_LOGIN = 1;
-    public static int REQUEST_VOLS = 2;
-    public static int REQUEST_BAGGAGES = 3;
+    public static int REQUEST_GET_VOLS = 2;
+    public static int REQUEST_GET_BAGGAGES = 3;
     public static int REQUEST_IS_BAGGAGE_LOADED = 4;
-    public static int REQUEST_LOGOUT = 5;
+    public static int REQUEST_STOP_CHECKIN = 5;
+    public static int REQUEST_UPDATE_BAGGAGES = 6;
+    public static int REQUEST_LOGOUT = 7;
 
+    
     private final int type;
     private Object chargeUtile;
     private byte[] Password;
+    private Object[] ObjectArray;
 
     public RequeteLUGAP(int t)
     {
@@ -43,6 +47,10 @@ public class RequeteLUGAP implements Requete, Serializable
     public RequeteLUGAP(int t, Object chu, byte[] pwd)
     {
         type = t; setChargeUtile(chu); setPassword(pwd);
+    }
+    
+    public RequeteLUGAP(int t, Object[] array){
+        type = t; ObjectArray = array;
     }
     
     public RequeteLUGAP(int t, Object vol)
@@ -73,19 +81,27 @@ public class RequeteLUGAP implements Requete, Serializable
             }
             return true;
         }
-        else if (type == REQUEST_VOLS)
+        else if (type == REQUEST_GET_VOLS)
         {
-            this.traiteRequeteVols(s, (ConsoleServeurBaggages)cs);
+            this.traiteRequeteGetVols(s, (ConsoleServeurBaggages)cs);
             return true;
         }
-        else if (type == REQUEST_BAGGAGES)
+        else if (type == REQUEST_GET_BAGGAGES)
         {
-            this.traiteRequeteBaggage(s, (ConsoleServeurBaggages)cs);
+            this.traiteRequeteGetBaggages(s, (ConsoleServeurBaggages)cs);
             return true;
         }
         else if(type == REQUEST_IS_BAGGAGE_LOADED){
             this.traiteRequestIsBaggageLoaded(s, (ConsoleServeurBaggages) cs);
             return false;
+        }
+        else if(type == REQUEST_STOP_CHECKIN){
+            this.traiteRequeteStopCheckin(s,(ConsoleServeurBaggages) cs);
+            return false;
+        }
+        else if(type == REQUEST_UPDATE_BAGGAGES){
+            this.traiteRequeteUpdateBaggages(s,(ConsoleServeurBaggages) cs);
+            return true;
         }
         else if (type == REQUEST_LOGOUT)
         {
@@ -164,7 +180,7 @@ public class RequeteLUGAP implements Requete, Serializable
         }
     }
     
-    private void traiteRequeteVols(Socket sock, ConsoleServeurBaggages cs)
+    private void traiteRequeteGetVols(Socket sock, ConsoleServeurBaggages cs)
     {
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
@@ -223,7 +239,15 @@ public class RequeteLUGAP implements Requete, Serializable
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
         
-        
+        ReponseLUGAP rep = new ReponseLUGAP(ReponseLUGAP.STOP_CHECKIN);
+        cs.sendBroadcastResponse(rep);
+    }
+    
+    public void traiteRequeteStopCheckin(Socket sock, ConsoleServeurBaggages cs){
+        System.out.println("Requete Stop Checkin");
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        cs.sendBroadcastResponse(new ReponseLUGAP(ReponseLUGAP.STOP_CHECKIN));
     }
     
     public void traiteRequeteLogOut(Socket sock, ConsoleServeurBaggages cs)
@@ -237,10 +261,34 @@ public class RequeteLUGAP implements Requete, Serializable
         } catch (IOException ex) {
             Logger.getLogger(RequeteLUGAP.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
     
-    public void traiteRequeteBaggage(Socket sock, ConsoleServeurBaggages cs)
+    public void traiteRequeteUpdateBaggages(Socket sock, ConsoleServeurBaggages cs){
+        System.out.println("Requete Update Baggages");
+        String adresseDistante = sock.getRemoteSocketAddress().toString();
+        System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
+        boolean result = cs.updateBaggages((Baggages[]) this.ObjectArray);
+        ReponseLUGAP rep = null;
+        System.out.println("Result = "+result);
+        if(result){
+            rep = new ReponseLUGAP(ReponseLUGAP.UPDATE_BAGGAGES_SUCCESS);
+        }
+        else
+            rep = new ReponseLUGAP(ReponseLUGAP.UPDATE_BAGGAGES_ERROR);
+        
+        ObjectOutputStream oos;
+        try
+        {
+            oos = new ObjectOutputStream(sock.getOutputStream());
+            oos.writeObject(rep); oos.flush();
+        }
+        catch (IOException e)
+        {
+            System.err.println("Erreur réseau ? [" + e.getMessage() + "]");
+        }
+    }
+    
+    public void traiteRequeteGetBaggages(Socket sock, ConsoleServeurBaggages cs)
     {
         System.out.println("RequeteBagages");
         String adresseDistante = sock.getRemoteSocketAddress().toString();
@@ -255,7 +303,7 @@ public class RequeteLUGAP implements Requete, Serializable
         try {
             while(rs.next())
             {
-                BagTable[i] = new Baggages(rs.getInt(1),rs.getString(2),rs.getFloat(3), rs.getBoolean(4));
+                BagTable[i] = new Baggages(rs);
                 System.out.println(BagTable[i].AfficheBaggages());
                 i++;
             }

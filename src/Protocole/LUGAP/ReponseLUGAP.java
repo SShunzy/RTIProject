@@ -24,6 +24,9 @@ public class ReponseLUGAP implements Reponse, Serializable
     public static int BAGGAGES_SEND = 901;
     public static int ALL_BAGGAGES_LOADED = 1001;
     public static int NOT_ALL_BAGGAGES_LOADED = 1002;
+    public static int STOP_CHECKIN = 1003;
+    public static int UPDATE_BAGGAGES_SUCCESS = 1101;
+    public static int UPDATE_BAGGAGES_ERROR = 1102;
     
     private int codeRetour;
     private String chargeUtile;
