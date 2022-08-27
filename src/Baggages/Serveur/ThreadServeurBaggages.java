@@ -89,11 +89,11 @@ public class ThreadServeurBaggages extends Thread
     {
         for(int i = 0; i < NbClients; i++)
         {
-            thr[i].stop();
+            thr[i].interrupt();
         }
         try {
             SSocket.close();
-            this.stop();
+            this.interrupt();
         } catch (IOException ex) {
             Logger.getLogger(ThreadServeurBaggages.class.getName()).log(Level.SEVERE, null, ex);
         }

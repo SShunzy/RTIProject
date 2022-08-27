@@ -52,73 +52,75 @@ public class ThreadClientBaggages extends Thread
             {
                 System.out.println(nom+"> Interruption : " + e.getMessage());
             }
-            boolean log = true,isAlreadyRead = false;
-            System.out.println(nom+"> run de tachesencours");
-            ObjectInputStream ois=null;
-            Requete req = null;
-            DataInputStream dis = null;
-            try
-            {
-                ois = new ObjectInputStream(tacheEnCours.getInputStream());
-                System.out.println("ois créé");
+            if(tacheEnCours != null){
+                boolean log = true,isAlreadyRead = false;
+                System.out.println(nom+"> run de tachesencours");
+                ObjectInputStream ois=null;
+                Requete req = null;
+                DataInputStream dis = null;
+                try
+                {
+                    ois = new ObjectInputStream(tacheEnCours.getInputStream());
+                    System.out.println("ois créé");
 
-            }
-            catch (IOException e)
-            {
-                isAlreadyRead = true;
-                try {
-                    dis = new DataInputStream(tacheEnCours.getInputStream());
-                    System.out.println("dis créé");
-                } catch (IOException ex) {
-                    Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }  
-            while(log == true)
-            {
-                if(isAlreadyRead){
+                catch (IOException e)
+                {
+                    isAlreadyRead = true;
                     try {
-                        System.out.println("isAlreadyRead");
-                        byte[] param = new byte[70];
-             
-                        int numberReads = 0;
-                        boolean isAtTheEnd = false;
-                        System.out.println("param créé");
-                        while(!isAtTheEnd && numberReads < 70){
-                            byte entry;
-                            entry = dis.readByte();
-                            System.out.println("entry = "+entry);
-                            if(entry != 0x40){
-                                param[numberReads] = entry;
-                                numberReads++;
-                            }
-                            else{
-                                System.out.println("Fin du message reçue");
-                                isAtTheEnd = true;
-                            }
-                        }
-
-                       //int numberReads = dis.read(param,0,5);
-                        System.out.println("param = "+new String(param)+"\nNumber of reads:"+numberReads);
-                        req = new RequeteCHELUP(param);
+                        dis = new DataInputStream(tacheEnCours.getInputStream());
+                        System.out.println("dis créé");
                     } catch (IOException ex) {
                         Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }
-                else{
-                    try {
-                        req = (Requete) ois.readObject();
-                    } catch (IOException ex ) {
-                        Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ClassNotFoundException ex) {
-                        Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                if(req != null){
-                    System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
+                }  
+                while(log == true)
+                {
+                    if(isAlreadyRead){
+                        try {
+                            System.out.println("isAlreadyRead");
+                            byte[] param = new byte[70];
 
-                    log = req.createRunnable(tacheEnCours, cs);
-                }
+                            int numberReads = 0;
+                            boolean isAtTheEnd = false;
+                            System.out.println("param créé");
+                            while(!isAtTheEnd && numberReads < 70){
+                                byte entry;
+                                entry = dis.readByte();
+                                System.out.println("entry = "+entry);
+                                if(entry != 0x40){
+                                    param[numberReads] = entry;
+                                    numberReads++;
+                                }
+                                else{
+                                    System.out.println("Fin du message reçue");
+                                    isAtTheEnd = true;
+                                }
+                            }
+
+                           //int numberReads = dis.read(param,0,5);
+                            System.out.println("param = "+new String(param)+"\nNumber of reads:"+numberReads);
+                            req = new RequeteCHELUP(param);
+                        } catch (IOException ex) {
+                            Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    else{
+                        try {
+                            req = (Requete) ois.readObject();
+                        } catch (IOException ex ) {
+                            Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ClassNotFoundException ex) {
+                            Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    if(req != null){
+                        System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
+
+                        log = req.createRunnable(tacheEnCours, cs);
+                    }
+                }   
             }
-        }
+        }            
     }
 }
