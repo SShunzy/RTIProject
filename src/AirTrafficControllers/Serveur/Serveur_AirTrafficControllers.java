@@ -231,7 +231,8 @@ public class Serveur_AirTrafficControllers extends javax.swing.JFrame implements
         while (parser.hasMoreTokens())
         ligne.add(parser.nextToken());
         DefaultTableModel dtm = (DefaultTableModel)this.ClientTable.getModel();
-        dtm.insertRow(dtm.getRowCount(),ligne);    }
+        dtm.insertRow(dtm.getRowCount(),ligne);    
+    }
 
 
     
