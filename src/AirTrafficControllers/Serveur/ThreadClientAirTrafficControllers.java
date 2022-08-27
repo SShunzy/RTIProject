@@ -36,6 +36,7 @@ public class ThreadClientAirTrafficControllers extends Thread
     {
         while (!isInterrupted())
         {
+            System.out.println("Debut du "+nom);
             try
             {
                 System.out.println(nom+"> Thread client avant get");
@@ -45,30 +46,33 @@ public class ThreadClientAirTrafficControllers extends Thread
             {
                 System.out.println(nom+"> Interruption : " + e.getMessage());
             }
-            boolean log = true;
-            System.out.println(nom+"> run de tachesencours");
-            ObjectInputStream ois=null;
-            Requete req = null;
-            try
-            {
-                ois = new ObjectInputStream(tacheEnCours.getInputStream());
-            }
-            catch (IOException e)
-            {
-                System.err.println("Erreur ? [" + e.getMessage() + "]");
-            }  
-            while(log == true)
-            {
-                try {
-                    req = (Requete) ois.readObject();
-                } catch (IOException | ClassNotFoundException ex) {
-                    Logger.getLogger(ThreadClientAirTrafficControllers.class.getName()).log(Level.SEVERE, null, ex);
+            if(tacheEnCours != null){
+                boolean log = true;
+                System.out.println(nom+"> run de tachesencours");
+                ObjectInputStream ois=null;
+                Requete req = null;
+                try
+                {
+                    ois = new ObjectInputStream(tacheEnCours.getInputStream());
                 }
-                System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
+                catch (IOException e)
+                {
+                    System.err.println("Erreur ? [" + e.getMessage() + "]");
+                }  
+                while(log == true && !isInterrupted())
+                {
+                    try {
+                        req = (Requete) ois.readObject();
+                    } catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(ThreadClientAirTrafficControllers.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
 
-                log = req.createRunnable(tacheEnCours, cs);
+                    log = req.createRunnable(tacheEnCours, cs);
+                }
             }
-            this.stop();
+            System.out.println("Fin du "+nom);
+            this.interrupt();
         }
     }
 }

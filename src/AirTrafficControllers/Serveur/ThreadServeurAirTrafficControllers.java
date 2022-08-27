@@ -75,11 +75,11 @@ public class ThreadServeurAirTrafficControllers extends Thread
     public void Shutdown()
     {
         for(int i = 0 ; i < thr.size(); i++){
-            thr.get(i).stop();
+            thr.get(i).interrupt();
         }
         try {
             SSocket.close();
-            this.stop();
+            this.interrupt();
         }
         catch (IOException ex) {
             Logger.getLogger(ThreadServeurAirTrafficControllers.class.getName()).log(Level.SEVERE, null, ex);
