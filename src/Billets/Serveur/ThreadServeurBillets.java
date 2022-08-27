@@ -74,11 +74,11 @@ public class ThreadServeurBillets extends Thread
     {
         for(int i = 0; i < NbClients; i++)
         {
-            thr[i].stop();
+            thr[i].interrupt();
         }
         try {
             SSocket.close();
-            this.stop();
+            this.interrupt();
         }
         catch (IOException ex) {
             Logger.getLogger(ThreadServeurBillets.class.getName()).log(Level.SEVERE, null, ex);
