@@ -74,7 +74,7 @@ public class ThreadClientBaggages extends Thread
                         Logger.getLogger(ThreadClientBaggages.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }  
-                while(log == true)
+                while(log == true && !isInterrupted())
                 {
                     if(isAlreadyRead){
                         try {
