@@ -36,7 +36,8 @@ public class Application_Baggages extends javax.swing.JFrame
     private ObjectOutputStream oos;
     private Socket cliSock;
     private Vols[] rs;
-    private Baggages[] rb;
+    private ListeResponseBaggage listeResponse;
+    private ThreadListenerBaggage TLB;
 
     public Application_Baggages()
     {
@@ -48,6 +49,7 @@ public class Application_Baggages extends javax.swing.JFrame
         this.setVisible(false);
         d.setSize(420, 420);
         d.setVisible(true);
+        listeResponse = new ListeResponseBaggage();
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -245,6 +247,8 @@ public class Application_Baggages extends javax.swing.JFrame
         {
             cliSock = new Socket(adresse,port);
             System.out.println(cliSock.getInetAddress().toString());
+            TLB = new ThreadListenerBaggage(this,cliSock,listeResponse); TLB.start();
+
         } 
         catch (UnknownHostException ex) 
         {
@@ -314,9 +318,8 @@ public class Application_Baggages extends javax.swing.JFrame
     public ReponseLUGAP getReponseLUGAP(){
         ReponseLUGAP rep = null;
         try {
-                ois = new ObjectInputStream(cliSock.getInputStream());
-            rep = (ReponseLUGAP) ois.readObject();
-        } catch (IOException | ClassNotFoundException ex) {
+            rep = (ReponseLUGAP) this.listeResponse.getResponse();
+        } catch (InterruptedException ex) {
             Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
         }
         return rep;
@@ -330,6 +333,7 @@ public class Application_Baggages extends javax.swing.JFrame
     public void initLogOut(){
         RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGOUT);
         this.SendRequeteLUGAP(req);
+        TLB.interrupt();
         this.dispose();
     }
     
