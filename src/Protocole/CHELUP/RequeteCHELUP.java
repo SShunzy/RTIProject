@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author student
  */
-public class RequeteCHELUP implements Requete{
+public class RequeteCHELUP implements Requete {
 
     public byte[] chaineCaractere;
     
