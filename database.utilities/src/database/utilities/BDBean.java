@@ -129,4 +129,15 @@ public class BDBean implements Serializable
         return pStmt.executeUpdate();
     }
     
+    public int Delete() throws SQLException
+    {
+        String query = "Delete From <tables> ";
+        if(!this.getCondition().equals(""))
+            query +=" where <Cond>";
+        String SQL = query.replaceAll("<values>", getValues()).replaceAll("<tables>", getTable()).replaceAll("<Cond>",getCondition());
+        PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        System.out.println("Requête : "+SQL);
+        return pStmt.executeUpdate();
+    }
+    
 }
