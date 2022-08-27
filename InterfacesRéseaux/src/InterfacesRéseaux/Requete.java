@@ -11,5 +11,5 @@ import java.net.*;
  */
 public interface Requete 
 {
-    public Runnable createRunnable(Socket s, ConsoleServeur cs);
+    public boolean createRunnable(Socket s, ConsoleServeur cs);
 }

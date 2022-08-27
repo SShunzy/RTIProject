@@ -3,11 +3,13 @@
  */
 package InterfacesRéseaux;
 
+import java.sql.ResultSet;
+
 /**
  *
  * @author student
  */
-public interface ConsoleServeur 
+public interface ConsoleServeur
 {
-    public void TraceEvenements(String commentaire);
+    public void TraceEvenements(String commentaire);    
 }

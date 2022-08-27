@@ -4,13 +4,15 @@
 
 package InterfacesRéseaux;
 
+import java.net.Socket;
+
 /**
  *
  * @author student
  */
 public interface SourceTaches 
 {
-    public Runnable getTache() throws InterruptedException;
+    public Socket getTache() throws InterruptedException;
     public boolean existTaches();
-    public void recordTache (Runnable r);
+    public void recordTache (Socket r);
 }
