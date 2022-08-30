@@ -276,56 +276,61 @@ public class ChoixVolDialog extends javax.swing.JDialog
     
     private void EnvoyerBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnvoyerBTActionPerformed
         System.out.println("Envoi des passagers en cours");
-        RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_ADD_PASSENGERS, this.EncryptPassengers(passagersString));
-        this.AppliBillets.sendRequeteTICKMAP(req);
-        System.out.println("Passagers Envoyés");
-        ReponseTICKMAP rep = this.AppliBillets.getReponseTICKMAP();
-        if(rep.getCode() == ReponseTICKMAP.VOL_FULL){
-            JOptionPane.showMessageDialog(this, "Il n'y a pas assez de place pour le vol sélectionné.");
-            this.AppliBillets.setVisible(true);
-            this.dispose();
+        byte[] listePassagers = this.EncryptPassengers(passagersString);
+        if(listePassagers == null || listePassagers.length == 0){
+            
         }
-        else if(rep.getCode() == ReponseTICKMAP.PASSENGERS_ADDED){
-            String decodedString= "";
-            try {
-                decodedString = new String(this.AppliBillets.DecryptMessage(rep.getCryptedMessage()));
-            } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
-                Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+        else{
+            RequeteTICKMAP req = new RequeteTICKMAP(RequeteTICKMAP.REQUEST_ADD_PASSENGERS, listePassagers);
+            this.AppliBillets.sendRequeteTICKMAP(req);
+            System.out.println("Passagers Envoyés");
+            ReponseTICKMAP rep = this.AppliBillets.getReponseTICKMAP();
+            if(rep.getCode() == ReponseTICKMAP.VOL_FULL){
+                JOptionPane.showMessageDialog(this, "Il n'y a pas assez de place pour le vol sélectionné.");
+                this.AppliBillets.setVisible(true);
+                this.dispose();
             }
-            if(!decodedString.isEmpty()){
-                ArrayList<Passagers> PassengersArray = new ArrayList<>();
-                String[] parsedString = decodedString.split("@");
-                this.prix = Integer.parseInt(parsedString[0]);
-                String NrCommande = parsedString[1];
-                String showString = "Le prix est de "+this.prix+".\n Vos places sont:";
-                String[] parsedNrSiege = parsedString[2].split("#");
-                for(int i = 0; i < parsedNrSiege.length; i++){
-                    showString += "\n-Nr."+parsedNrSiege[i];
+            else if(rep.getCode() == ReponseTICKMAP.PASSENGERS_ADDED){
+                String decodedString= "";
+                try {
+                    decodedString = new String(this.AppliBillets.DecryptMessage(rep.getCryptedMessage()));
+                } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
+                    Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                showString += "\nVoulez-vous procéder au paiement?";
-                int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
-                if(result == JOptionPane.YES_OPTION)
-                {
-                    PaymentWindow Payment = new PaymentWindow(this.AppliBillets,"lionelthys",NrCommande,this.prix);
-                    this.AppliBillets.setVisible(true);
-                    Payment.setVisible(true);
-                    this.dispose();
-                }
-                else
-                {
-                    System.out.println("Paiement refusé");
-                    try {
-                        RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED, this.AppliBillets.EncryptMessage(NrCommande.getBytes()));
-                        this.AppliBillets.sendRequeteTICKMAP(reqPaiementRefuse);
+                if(!decodedString.isEmpty()){
+                    ArrayList<Passagers> PassengersArray = new ArrayList<>();
+                    String[] parsedString = decodedString.split("@");
+                    this.prix = Integer.parseInt(parsedString[0]);
+                    String NrCommande = parsedString[1];
+                    String showString = "Le prix est de "+this.prix+".\n Vos places sont:";
+                    String[] parsedNrSiege = parsedString[2].split("#");
+                    for(int i = 0; i < parsedNrSiege.length; i++){
+                        showString += "\n-Nr."+parsedNrSiege[i];
+                    }
+                    showString += "\nVoulez-vous procéder au paiement?";
+                    int result = JOptionPane.showConfirmDialog(this, showString, "Confirmation", JOptionPane.YES_NO_OPTION);
+                    if(result == JOptionPane.YES_OPTION)
+                    {
+                        PaymentWindow Payment = new PaymentWindow(this.AppliBillets,"lionelthys",NrCommande,this.prix);
                         this.AppliBillets.setVisible(true);
+                        Payment.setVisible(true);
                         this.dispose();
-                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
-                        Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    else
+                    {
+                        System.out.println("Paiement refusé");
+                        try {
+                            RequeteTICKMAP reqPaiementRefuse = new RequeteTICKMAP(RequeteTICKMAP.PAYMENT_REFUSED, this.AppliBillets.EncryptMessage(NrCommande.getBytes()));
+                            this.AppliBillets.sendRequeteTICKMAP(reqPaiementRefuse);
+                            this.AppliBillets.setVisible(true);
+                            this.dispose();
+                        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException ex) {
+                            Logger.getLogger(ChoixVolDialog.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
             }
         }
-
     }//GEN-LAST:event_EnvoyerBTActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
