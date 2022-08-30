@@ -7,7 +7,6 @@ package Protocole.PAYP;
 
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
-import Payment.Serveur.ConsoleServeurPayment;
 import Protocole.SEBATRAP.ReponseSEBATRAP;
 import Protocole.SEBATRAP.RequeteSEBATRAP;
 import java.io.FileInputStream;

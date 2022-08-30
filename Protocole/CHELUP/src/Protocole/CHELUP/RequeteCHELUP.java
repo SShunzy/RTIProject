@@ -5,7 +5,7 @@
  */
 package Protocole.CHELUP;
 
-import Baggages.Serveur.ConsoleServeurBaggages;
+import Protocole.LUGAP.ConsoleServeurBaggages;
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
 import java.io.DataOutputStream;

@@ -5,6 +5,7 @@
  */
 package Payment.Serveur;
 
+import Protocole.PAYP.ConsoleServeurPayment;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +26,7 @@ public class Serveur_Payment extends javax.swing.JFrame implements ConsoleServeu
     {
         this.setTitle("Serveur Payment");
         initComponents();
+        this.PortTF.setText("8000");
     }
 
     /**

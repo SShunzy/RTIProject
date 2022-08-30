@@ -5,7 +5,6 @@
  */
 package Protocole.IACOP;
 
-import IACHAT.Serveur.ConsoleServeurIACOP;
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class RequeteIACOP implements Requete, Serializable{
     
 
     
-    public void createRunnable(MulticastSocket s, ConsoleServeur cs) {
+    public void createRunnable(MulticastSocket s, ConsoleServeurIACOP cs) {
         
         try {
             MessageDigest integrityMessage;

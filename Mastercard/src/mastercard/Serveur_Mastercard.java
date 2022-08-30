@@ -32,6 +32,7 @@ public class Serveur_Mastercard extends javax.swing.JFrame implements ConsoleSer
     {
         this.setTitle("Serveur Mastercard");
         initComponents();
+        this.PortTF.setText("5000");
     }
 
     /**

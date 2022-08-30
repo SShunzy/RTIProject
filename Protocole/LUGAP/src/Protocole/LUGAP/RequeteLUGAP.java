@@ -5,7 +5,6 @@
  */
 package Protocole.LUGAP;
 
-import Baggages.Serveur.ConsoleServeurBaggages;
 import Classes.Baggages;
 import Classes.Vols;
 import InterfacesRéseaux.ConsoleServeur;

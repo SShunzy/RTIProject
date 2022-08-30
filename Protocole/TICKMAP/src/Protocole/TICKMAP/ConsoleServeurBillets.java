@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Billets.Serveur;
+package Protocole.TICKMAP;
 
 import Classes.Passagers;
 import InterfacesRéseaux.ConsoleServeur;

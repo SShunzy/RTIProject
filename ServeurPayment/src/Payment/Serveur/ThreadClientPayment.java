@@ -5,6 +5,7 @@
  */
 package Payment.Serveur;
 
+import Protocole.PAYP.ConsoleServeurPayment;
 import InterfacesRéseaux.Requete;
 import InterfacesRéseaux.SourceTaches;
 import java.io.IOException;
