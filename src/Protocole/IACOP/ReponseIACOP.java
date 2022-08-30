@@ -6,45 +6,44 @@
 package Protocole.IACOP;
 
 import InterfacesRéseaux.Reponse;
+import java.io.Serializable;
+import java.net.InetAddress;
 
 /**
  *
  * @author student
  */
-public class ReponseIACOP implements Reponse {
+public class ReponseIACOP implements Reponse, Serializable {
 
     public static int LOGIN_OK = 101;
     public static int LOGIN_KO = 102;
-    public static int RESPONSE_TO_TAG = 201;
     
     private int code;
-    private Object chargeUtile,tag;
+    private InetAddress address;
+    private int port;
     
-    public ReponseIACOP(int code, Object charge, Object tag){
+    public ReponseIACOP(int code){
         this.code = code;
-        this.chargeUtile = charge;
-        this.tag = tag;
+    }
+    
+    public ReponseIACOP(int code, InetAddress address, int port){
+        this.code = code;
+        this.address = address;
+        this.port = port;
     }
     
     @Override
     public int getCode() {
         return this.code;
     }
+   
     
-    public Object getChargeUtile(){
-        return this.chargeUtile;
+    public InetAddress getAdresse(){
+        return this.address;
     }
     
-    public Object getTag(){
-        return this.tag;
-    }
-    
-    public Object getAdresse(){
-        return this.chargeUtile;
-    }
-    
-    public Object getPort(){
-        return this.tag;
+    public int getPort(){
+        return this.port;
     }
     
 }

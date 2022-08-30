@@ -5,20 +5,25 @@
  */
 package IACHAT.Application;
 
+import InterfacesRéseaux.ConsoleServeur;
 import Protocole.IACOP.ReponseIACOP;
 import Protocole.IACOP.RequeteIACOP;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -28,18 +33,23 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  *
  * @author student
  */
-public class Application_JIACHAT extends javax.swing.JFrame {
+public class Application_JIACHAT extends javax.swing.JFrame implements ConsoleServeur {
 
     private static final int PORT_FLY = 25565;
     private static final String ADDRESS_FLY = "127.0.0.1";
     
     private MulticastSocket ChatSocket = null;
+    private String login;
+    private ThreadListenerIACHAT tListener = null;
     
     /**
      * Creates new form NewJFrame
      */
     public Application_JIACHAT() {
+        
+        Security.addProvider(new BouncyCastleProvider());
         initComponents();
+        this.setTitle("Application JIA Chat");
     }
 
     /**
@@ -64,17 +74,23 @@ public class Application_JIACHAT extends javax.swing.JFrame {
         LoginL = new javax.swing.JLabel();
         PasswordL = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        MessageTA = new javax.swing.JTextArea();
         SendBT = new javax.swing.JButton();
         codeL = new javax.swing.JLabel();
         ResponseCB = new javax.swing.JCheckBox();
         CodeTF = new javax.swing.JTextField();
+        EventCB = new javax.swing.JCheckBox();
 
         jTextField1.setText("jTextField1");
 
         jLabel2.setText("jLabel2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jScrollPane1.setViewportView(MessagePanel);
 
@@ -102,9 +118,9 @@ public class Application_JIACHAT extends javax.swing.JFrame {
 
         PasswordL.setText("Mot de passe:");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        MessageTA.setColumns(20);
+        MessageTA.setRows(5);
+        jScrollPane2.setViewportView(MessageTA);
 
         SendBT.setText("Envoyer");
         SendBT.addActionListener(new java.awt.event.ActionListener() {
@@ -125,6 +141,13 @@ public class Application_JIACHAT extends javax.swing.JFrame {
         CodeTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 CodeTFActionPerformed(evt);
+            }
+        });
+
+        EventCB.setText("Event");
+        EventCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EventCBActionPerformed(evt);
             }
         });
 
@@ -155,15 +178,17 @@ public class Application_JIACHAT extends javax.swing.JFrame {
                                         .addGap(0, 0, Short.MAX_VALUE))))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane2)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(ResponseCB, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addComponent(codeL)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(CodeTF))
-                                        .addComponent(SendBT, javax.swing.GroupLayout.Alignment.TRAILING)))))
+                                .addGap(28, 28, 28)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(4, 4, 4)
+                                        .addComponent(SendBT))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(codeL)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(CodeTF))
+                                    .addComponent(EventCB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(ResponseCB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -183,14 +208,16 @@ public class Application_JIACHAT extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 312, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(EventCB)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(ResponseCB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(codeL)
                             .addComponent(CodeTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(SendBT)))
                 .addContainerGap())
         );
@@ -204,8 +231,6 @@ public class Application_JIACHAT extends javax.swing.JFrame {
 
     private void ConnectBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConnectBTActionPerformed
         // TODO add your handling code here:
-        Security.addProvider(new BouncyCastleProvider());
-
         String Login = LoginTF.getText();
         String Password = new String(PasswordPF.getPassword());
         
@@ -218,12 +243,11 @@ public class Application_JIACHAT extends javax.swing.JFrame {
             }
             else{
                 try {
+                    System.out.println("Check login-pasword OK");
                     Socket cliSock = new Socket(ADDRESS_FLY,PORT_FLY);
-                    ObjectOutputStream oos = new ObjectOutputStream(cliSock.getOutputStream());
-                    ObjectInputStream ois = new ObjectInputStream(cliSock.getInputStream());
-                    
-                    RequeteIACOP req = null;
 
+                    RequeteIACOP req = null;
+                    System.out.println("Pre digest");
                     try 
                     {
                         MessageDigest pwdSalted;
@@ -232,17 +256,22 @@ public class Application_JIACHAT extends javax.swing.JFrame {
                         Timestamp today = Timestamp.from(Instant.now());
                         pwdSalted.update(today.toGMTString().getBytes());
                         req = new RequeteIACOP(RequeteIACOP.LOGIN_GROUP, Login, today, pwdSalted.digest(Password.getBytes()) );
+                        System.out.println("Post-digest : Requete cree");
                     } 
                     catch (NoSuchAlgorithmException | NoSuchProviderException ex) 
                     {
                         Logger.getLogger(Application_JIACHAT.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+
                     if(req != null){
+                        System.out.println("Envoi de la requete");
+                        ObjectOutputStream oos = new ObjectOutputStream(cliSock.getOutputStream());
                         oos.writeObject(req);oos.flush();
-                        
+                        System.out.println("requete envoyee");
+
                         ReponseIACOP rep = null;
                         try {
+                            ObjectInputStream ois = new ObjectInputStream(cliSock.getInputStream());
                             rep = (ReponseIACOP) ois.readObject();
                         } catch (ClassNotFoundException ex) {
                             Logger.getLogger(Application_JIACHAT.class.getName()).log(Level.SEVERE, null, ex);
@@ -250,11 +279,21 @@ public class Application_JIACHAT extends javax.swing.JFrame {
                         if(rep != null){
                             if(rep.getCode() == ReponseIACOP.LOGIN_OK){
                                 try{
-                                    InetAddress groupAddress = InetAddress.getByName((String) rep.getAdresse());
-                                    this.ChatSocket = new MulticastSocket((int)rep.getPort());
-                                    this.ChatSocket.joinGroup(groupAddress);
-                                    this.ConnectStatusRB.setEnabled(true);
-                                }catch(IOException e){
+                                    System.out.println("Message reçu. Addresse: "+rep.getAdresse()+" port: "+rep.getPort());
+                                    this.login = LoginTF.getText();
+                                    this.ChatSocket = new MulticastSocket(rep.getPort());
+                                    this.ChatSocket.joinGroup(rep.getAdresse());
+                                    System.out.println("ChatSocket créé. adresse: "+this.ChatSocket.getInetAddress()+" port: "+this.ChatSocket.getPort());
+
+                                    this.ConnectStatusRB.setSelected(true);
+                                    tListener = new ThreadListenerIACHAT(this.ChatSocket,this);
+                                    tListener.start();
+                                    
+
+                                }catch(SecurityException e){
+                                    System.out.println("SecurityException caught");
+                                }
+                                catch(IOException e){
                                     System.out.println("Erreur ? ["+e.getMessage()+"]");
                                 }
                             }
@@ -263,7 +302,10 @@ public class Application_JIACHAT extends javax.swing.JFrame {
                             }
                         }
                     }
-                    
+
+                }catch (UnknownHostException ex) 
+                {
+                    System.err.println("Erreur ! Host non trouvé [" + ex + "]");
                 } catch (IOException ex) {
                     Logger.getLogger(Application_JIACHAT.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -277,15 +319,91 @@ public class Application_JIACHAT extends javax.swing.JFrame {
 
     private void SendBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendBTActionPerformed
         // TODO add your handling code here:
+        if(MessageTA.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vous n'avez rien écrit\nVeuillez écrire au moins une lettre");
+        }
+        else{
+            
+            int tag, codeRequete;
+            if(ResponseCB.isSelected()){
+                codeRequete = RequeteIACOP.ANSWER_QUESTION;
+                tag = Integer.parseInt(CodeTF.getText());
+            }
+            else if(EventCB.isSelected()){
+                codeRequete = RequeteIACOP.POST_EVENT;
+
+                Random rand = new Random();
+                tag = rand.nextInt() % 800; //tag d'event < 800
+            }
+            else{
+                codeRequete = RequeteIACOP.POST_QUESTION;
+                Random rand = new Random();
+                tag = rand.nextInt();
+                if(tag < 800) tag+=800; //tag de question > 800
+            }
+
+            byte[] digest = null;
+            
+            try {
+                MessageDigest integrityMessage;
+                integrityMessage = MessageDigest.getInstance("SHA-1","BC");
+                integrityMessage.update(String.valueOf(tag).getBytes());
+                integrityMessage.update(login.getBytes());
+                digest = integrityMessage.digest(MessageTA.getText().getBytes());
+
+            } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
+                Logger.getLogger(Application_JIACHAT.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            RequeteIACOP req = new RequeteIACOP(codeRequete,MessageTA.getText(),tag,login,digest);
+            
+            System.out.println("McastSocket address :"+this.ChatSocket.getInetAddress() + "port: "+this.ChatSocket.getPort());
+            DatagramPacket DataPack = new DatagramPacket(req.toByteArray(),req.toByteArray().length, this.ChatSocket.getInetAddress(), this.ChatSocket.getPort());
+            
+            try {
+                if(this.ChatSocket.getTimeToLive() != 255)
+                    this.ChatSocket.setTimeToLive(255);
+                this.ChatSocket.send(DataPack);
+                this.MessageTA.setText("");
+            } catch (IOException ex) {
+                Logger.getLogger(Application_JIACHAT.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }//GEN-LAST:event_SendBTActionPerformed
 
     private void ResponseCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResponseCBActionPerformed
         // TODO add your handling code here:
+        if(!ResponseCB.isSelected()){
+            if(EventCB.isSelected())
+                EventCB.setSelected(false);
+            ResponseCB.setSelected(true);
+        }
+        else{
+            ResponseCB.setSelected(false);
+        }
     }//GEN-LAST:event_ResponseCBActionPerformed
 
     private void CodeTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CodeTFActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_CodeTFActionPerformed
+
+    private void EventCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EventCBActionPerformed
+        // TODO add your handling code here:
+        if(!EventCB.isSelected()){
+            if(ResponseCB.isSelected())
+                ResponseCB.setSelected(false);
+            EventCB.setSelected(true);
+        }
+        else{
+            EventCB.setSelected(false);
+        }
+    }//GEN-LAST:event_EventCBActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        if(tListener != null) tListener.interrupt();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -327,9 +445,11 @@ public class Application_JIACHAT extends javax.swing.JFrame {
     private javax.swing.JTextField CodeTF;
     private javax.swing.JButton ConnectBT;
     private javax.swing.JRadioButton ConnectStatusRB;
+    private javax.swing.JCheckBox EventCB;
     private javax.swing.JLabel LoginL;
     private javax.swing.JTextField LoginTF;
     private javax.swing.JTextPane MessagePanel;
+    private javax.swing.JTextArea MessageTA;
     private javax.swing.JLabel PasswordL;
     private javax.swing.JPasswordField PasswordPF;
     private javax.swing.JCheckBox ResponseCB;
@@ -340,7 +460,17 @@ public class Application_JIACHAT extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void TraceEvenements(String commentaire) {
+        String panel = this.MessagePanel.getText();
+        
+        String[] splittedComment = commentaire.split("\n\r");
+        
+        String formattedComment = "\n"+splittedComment[3]+"> #"+splittedComment[2]+ " "+splittedComment[1];
+        panel += formattedComment;
+        this.MessagePanel.setText(panel);
+    }
 }
