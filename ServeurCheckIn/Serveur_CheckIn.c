@@ -175,6 +175,7 @@ void * ThreadClient_CIMP(void*)
                             pthread_exit(NULL);
                         }
                         printf("Reponse envoyee\n");
+                        kill(0,SIGINT);
                     }
                 }
             }

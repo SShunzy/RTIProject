@@ -14,6 +14,8 @@ char* getMessage();
 
 void HandlerSigInt(int);
 
+void HandlerSigTerm(int);
+
 int hSocket;
 
 pthread_t handleListener_CIMP;
@@ -31,8 +33,6 @@ int main()
     pthread_cond_init(&CondListener, NULL);
 
 
-    
-
     char token1[30], token2[30], token3[30], Message[100], IP_Address[16], MessageRetour[50];
     int choice, end = 0, number, i;
 
@@ -41,6 +41,12 @@ int main()
     sigemptyset(&SignalInt.sa_mask);
     SignalInt.sa_flags = 0;
     sigaction(SIGINT, &SignalInt, NULL);
+
+    struct sigaction SignalTerm;
+    SignalTerm.sa_handler = HandlerSigTerm;
+    sigemptyset(&SignalTerm.sa_mask);
+    SignalTerm.sa_flags = 0;
+    sigaction(SIGTERM, &SignalTerm, NULL);
 
     while(end == 0)
     {
@@ -265,8 +271,8 @@ void* ThreadListener_CIMP(void*){
             pthread_cond_signal(&CondListener);
         }
         else{
-            printf("STOP_CHECKIN reçu\nArrêt de l'application");
-            kill(0,SIGINT);
+            printf("STOP_CHECKIN reçu\nArrêt de l'application\n");
+            kill(0,SIGTERM);
         }
     }
     pthread_exit(0);
@@ -299,6 +305,27 @@ void HandlerSigInt(int sig)
         close(hSocket);
         exit(-1);
     }
+
+    pthread_mutex_unlock(&MutexListener);
+    if(pthread_mutex_destroy(&MutexListener))
+        printf("Destruction de MutexListener\n");
+
+    pthread_cond_broadcast(&CondListener);
+    if(pthread_cond_destroy(&CondListener) == 0)
+        printf("Destruction de CondListener\n");
+    printf("Deconnexion effectuee!\n");
+
+    if(pthread_cancel(handleListener_CIMP) == 0)
+        printf("Arret de ThreadListener_CIMP\n");
+    sleep(1);
+
+    close(hSocket);
+    exit(0);
+}
+
+void HandlerSigTerm(int sig)
+{
+    printf("Reception du signal SIGTERM\n");
 
     pthread_mutex_unlock(&MutexListener);
     if(pthread_mutex_destroy(&MutexListener))
