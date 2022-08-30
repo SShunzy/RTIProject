@@ -38,9 +38,11 @@ public class Application_Baggages extends javax.swing.JFrame
     private Vols[] rs;
     private ListeResponseBaggage listeResponse;
     private ThreadListenerBaggage TLB;
+    public int SelectedVolId;
 
     public Application_Baggages()
     {
+        this.SelectedVolId = -1;
         Security.addProvider(new BouncyCastleProvider());
         initComponents();
         this.setTitle("Vols");
@@ -233,9 +235,7 @@ public class Application_Baggages extends javax.swing.JFrame
                     pwdSalted.update(Login.getBytes());
                     req = new RequeteLUGAP(RequeteLUGAP.REQUEST_LOGIN, Login, pwdSalted.digest(Pwd.getBytes()));
 
-                } catch (NoSuchAlgorithmException ex) {
-                    Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (NoSuchProviderException ex) {
+                } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
                     Logger.getLogger(Application_Baggages.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -350,6 +350,7 @@ public class Application_Baggages extends javax.swing.JFrame
         {
             System.out.println("Select non nul : "+VolsTable.getSelectedRow()+". "+rs[VolsTable.getSelectedRow()].StringTable());
             RequeteLUGAP req = new RequeteLUGAP(RequeteLUGAP.REQUEST_GET_BAGGAGES,rs[VolsTable.getSelectedRow()]);
+            this.SelectedVolId = rs[VolsTable.getSelectedRow()].ID;
             this.SendRequeteLUGAP(req);
             System.out.println("RequeteEnvoyee");
             ReponseLUGAP rep = this.getReponseLUGAP();

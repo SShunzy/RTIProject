@@ -29,12 +29,12 @@ public class ReponseLUGAP implements Reponse, Serializable
     public static int UPDATE_BAGGAGES_ERROR = 1102;
     
     private int codeRetour;
-    private String chargeUtile;
+    private Object chargeUtile;
     private Object[] returnArray;
     public ReponseLUGAP(int c){
         codeRetour = c;
     }
-    public ReponseLUGAP(int c, String chu)
+    public ReponseLUGAP(int c, Object chu)
     {
         codeRetour = c; setChargeUtile(chu);
     }
@@ -45,8 +45,8 @@ public class ReponseLUGAP implements Reponse, Serializable
   
     
     public int getCode() { return codeRetour; }
-    public String getChargeUtile() { return chargeUtile; }
-    public void setChargeUtile(String chargeUtile) { this.chargeUtile = chargeUtile; } 
+    public Object getChargeUtile() { return chargeUtile; }
+    public void setChargeUtile(Object chargeUtile) { this.chargeUtile = chargeUtile; } 
     
     public Object[] getReturnArray(){return this.returnArray;}
     public void setReturnArray(Object[] obj){ this.returnArray = obj;}

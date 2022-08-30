@@ -39,9 +39,11 @@ public class ThreadListenerBaggage extends Thread {
                 ois = new ObjectInputStream(this.listenerSocket.getInputStream());
                 ReponseLUGAP rep = (ReponseLUGAP) ois.readObject();
                 if(rep.getCode() == ReponseLUGAP.STOP_CHECKIN){
-                    JOptionPane.showMessageDialog(parent, "Fin des opérations de check-in");
-                    parent.initLogOut();
-                    this.interrupt();
+                    if(parent.SelectedVolId > 0 && (int)rep.getChargeUtile() == parent.SelectedVolId){
+                        JOptionPane.showMessageDialog(parent, "Fin des opérations de check-in");
+                        parent.initLogOut();
+                        this.interrupt();   
+                    }
                 }
                 else
                     sourceResponse.recordReponse(rep);

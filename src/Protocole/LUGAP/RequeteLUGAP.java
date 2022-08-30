@@ -247,7 +247,7 @@ public class RequeteLUGAP implements Requete, Serializable
         System.out.println("Requete Stop Checkin");
         String adresseDistante = sock.getRemoteSocketAddress().toString();
         System.out.println("Début de traiteRequete : adresse distante = " + adresseDistante);
-        cs.sendBroadcastResponse(new ReponseLUGAP(ReponseLUGAP.STOP_CHECKIN));
+        cs.sendBroadcastResponse(new ReponseLUGAP(ReponseLUGAP.STOP_CHECKIN,this.chargeUtile));
     }
     
     public void traiteRequeteLogOut(Socket sock, ConsoleServeurBaggages cs)
