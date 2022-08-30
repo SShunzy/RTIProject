@@ -176,7 +176,7 @@ public class PaymentWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_AnnulerBTActionPerformed
 
     private void ConnexionBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConnexionBTActionPerformed
-
+        
         String NumCard = NuméroTF.getText();
         String Nom = NomTF.getText();
         
@@ -210,7 +210,7 @@ public class PaymentWindow extends javax.swing.JFrame {
                         
                         Certificate certif = ks.getCertificate("PaymentKey");
                         
-                        Cipher EncryptMessage = Cipher.getInstance("RSA");
+                        Cipher EncryptMessage = Cipher.getInstance("RSA","BC");
                         EncryptMessage.init(Cipher.ENCRYPT_MODE,certif); ;
                         
                         byte[] CryptedMessage = EncryptMessage.doFinal(message.getBytes());
