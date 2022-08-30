@@ -8,19 +8,22 @@ package Protocole.PAYP;
 import InterfacesRéseaux.ConsoleServeur;
 import InterfacesRéseaux.Requete;
 import Payment.Serveur.ConsoleServeurPayment;
+import Protocole.SEBATRAP.ReponseSEBATRAP;
+import Protocole.SEBATRAP.RequeteSEBATRAP;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.security.InvalidKeyException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
@@ -31,6 +34,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
+import javax.net.ssl.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -40,6 +44,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class RequetePAYP implements Requete, Serializable
 {
     private static String CertificateRepository = "/home/student/NetBeansProjects/RTIProjectGit/Certificats/";
+    private static String ADDRESS_MASTERCARD = "127.0.0.1";
+    private static int PORT_MASTERCARD = 5000;
     
     public static int REQUEST_PAYMENT = 1;
     
@@ -107,7 +113,7 @@ public class RequetePAYP implements Requete, Serializable
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new FileInputStream(RequetePAYP.CertificateRepository+"Payment.key") , "student1".toCharArray());
 
-            Cipher DecryptMessage = Cipher.getInstance("RSA");
+            Cipher DecryptMessage = Cipher.getInstance("RSA","BC");
             PrivateKey pk = (PrivateKey) ks.getKey("PaymentKey", "student1".toCharArray());
             System.out.println("private key = "+pk);
             DecryptMessage.init(Cipher.DECRYPT_MODE,pk);
@@ -121,17 +127,38 @@ public class RequetePAYP implements Requete, Serializable
                 String[] MessageElements = Message.split("@");
                 System.out.println("Payment> Numéro de carte reçu: "+MessageElements[0]);
                 System.out.println("Payment> Nom reçu: "+MessageElements[1]);
-                System.out.println("Payment> Prix reçu: "+MessageElements[2]);
+                System.out.println("Payment> Prix reçu: "+MessageElements[2]);             
                 
-                boolean random = new SecureRandom().nextBoolean();
-                if(random){
-                    System.out.println("Paiement réussi");
+                SSLSocket MastercardSocket = null;
+                SSLContext SslC = SSLContext.getInstance("SSLv3");
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                kmf.init(ks,"student1".toCharArray());
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                tmf.init(ks);
+                SslC.init(kmf.getKeyManagers(),tmf.getTrustManagers(),null);
+                
+                SSLSocketFactory SslSFac = SslC.getSocketFactory();
+                
+                MastercardSocket = (SSLSocket) SslSFac.createSocket(RequetePAYP.ADDRESS_MASTERCARD, RequetePAYP.PORT_MASTERCARD);
+                
+                RequeteSEBATRAP reqSEBATRAP = new RequeteSEBATRAP(RequeteSEBATRAP.REQUEST_PAYMENT, MessageElements[0],MessageElements[1],Double.parseDouble(MessageElements[2]));
+                
+                ObjectOutputStream oosSSL = new ObjectOutputStream(MastercardSocket.getOutputStream());
+                
+                oosSSL.writeObject(reqSEBATRAP); oosSSL.flush();
+                
+                ReponseSEBATRAP repSEBATRAP = null;
+                
+                ObjectInputStream oisSSL = new ObjectInputStream(MastercardSocket.getInputStream());
+                repSEBATRAP = (ReponseSEBATRAP) oisSSL.readObject();
+                
+                if(repSEBATRAP.getCode() == ReponseSEBATRAP.PAYMENT_OK){
                     rep = new ReponsePAYP(ReponsePAYP.PAYMENT_OK);
                 }
-                else{
-                    System.out.println("Paiement échoué");
+                else
                     rep = new ReponsePAYP(ReponsePAYP.PAYMENT_KO);
-                }
+                    
+                MastercardSocket.close();
             }
             else{
                 System.out.println("Message NON authentifié\n Abandon de la commande!!");
@@ -140,7 +167,7 @@ public class RequetePAYP implements Requete, Serializable
             
             this.sendReponsePAYP(sock, rep);
 
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | NoSuchPaddingException | UnrecoverableKeyException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException ex) {
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | NoSuchPaddingException | UnrecoverableKeyException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException | KeyManagementException | ClassNotFoundException ex) {
             Logger.getLogger(RequetePAYP.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
