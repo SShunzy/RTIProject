@@ -10,7 +10,7 @@ Serveur_CheckIn:	Socket_lib.o	AccessBillBag.o
 
 Application_CheckIn:	Socket_lib.o
 	echo Creation de Application_CheckIn...
-	$(CC) Application_CheckIn.c -o Application_CheckIn Socket_lib.o
+	$(CC) Application_CheckIn.c -o Application_CheckIn Socket_lib.o -lpthread
 
 AccessBillBag.o:	AccessBillBag.c	AccessBillBag.h Socket_lib.h
 	echo Creation de AccessBillBag.o...

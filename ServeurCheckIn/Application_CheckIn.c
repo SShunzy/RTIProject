@@ -2,17 +2,37 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "Socket_lib.h"
 
 #define PORT_CHCK 8080
 
+void * ThreadListener_CIMP(void*);
+
+char* getMessage();
+
 void HandlerSigInt(int);
 
 int hSocket;
 
+pthread_t handleListener_CIMP;
+
+int numMessage = 0;
+
+char** MessageList;
+
+pthread_mutex_t MutexListener;
+pthread_cond_t CondListener;
+
 int main()
 {
+    pthread_mutex_init(&MutexListener, NULL);
+    pthread_cond_init(&CondListener, NULL);
+
+
+    
+
     char token1[30], token2[30], token3[30], Message[100], IP_Address[16], MessageRetour[50];
     int choice, end = 0, number, i;
 
@@ -32,6 +52,16 @@ int main()
         else
             end = 1;
     }
+
+    if(pthread_create(&handleListener_CIMP, NULL,(void*(*)(void*)) ThreadListener_CIMP, NULL) != 0)
+    {
+        perror("Erreur de creation du thread Listener ");
+        return -1;
+    }
+    //On créé une liste de 20 messages//
+    MessageList = (char**) malloc(20*sizeof(char*));
+    for(int i = 0 ; i < 20; i++)
+        MessageList[i] = (char*) malloc(100*sizeof(char));
 
     while(strcmp(Message, "LOGIN_OK") != 0)
     {
@@ -53,11 +83,11 @@ int main()
         }
         printf("Demande de login envoyee\n");
 
-        if(Receive(hSocket, Message) == -1)
-        {
-            printf("Erreur de receive\n");
-            return -1;
-        }
+        char* MessageRetourne = getMessage();
+        printf("\nMessageRetourne = %s\n",MessageRetourne);
+
+        strcpy(Message,MessageRetourne);
+
         printf("Reponse recue : %s\n", Message);
     }
 
@@ -101,11 +131,8 @@ int main()
             }
             printf("Envoi de CHECK_TICKET effectuee!\n");
 
-            if(Receive(hSocket, Message) == -1)
-            {
-                printf("Erreur de receive\n");
-                return -1;
-            }
+            strcpy(Message,getMessage());
+
             printf("Reponse recue : %s\n", Message);
 
             if(strcmp(Message, "TICKET_KO") == 0)
@@ -155,11 +182,8 @@ int main()
             }
             printf("Envoi de CHECK_LUGGAGE effectuee!\n");
 
-            if(Receive(hSocket, MessageRetour) == -1)
-            {
-                printf("Erreur de receive\n");
-                return -1;
-            }
+            strcpy(Message,getMessage());
+
             printf("Reponse recue : %s\n", MessageRetour);
 
             if(strcmp(strtok(MessageRetour, "#"), "LUGGAGE_HEAVY") == 0)
@@ -186,11 +210,8 @@ int main()
                     }
                     printf("Envoi de PAYMENT_DONE effectuee!\n");
 
-                    if(Receive(hSocket, MessageRetour) == -1)
-                    {
-                        printf("Erreur de receive\n");
-                        return -1;
-                    }
+                    strcpy(Message,getMessage());
+
                     printf("Reponse recue : %s\n", MessageRetour);
                 }
 
@@ -206,12 +227,64 @@ int main()
         }
     }
 
+    pthread_mutex_unlock(&MutexListener);
+    if(pthread_mutex_destroy(&MutexListener))
+        printf("Destruction de MutexConnexion\n");
+
+    pthread_cond_broadcast(&CondListener);
+    if(pthread_cond_destroy(&CondListener) == 0)
+        printf("Destruction de CondConnexion\n");
+
+    if(pthread_cancel(handleListener_CIMP) == 0)
+        printf("Arret de ThreadListener_CIMP\n");
+
     close(hSocket);
 
     return 0;
 }
 
+void* ThreadListener_CIMP(void*){
 
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    while(1){
+        
+        char Message[100];
+        if(Receive(hSocket,Message) == -1)
+        {
+            printf("Erreur de receive\n");
+            return NULL;
+        }
+
+        if(strcmp(Message,"STOP_CHECKIN") != 0)
+        {
+            pthread_mutex_lock(&MutexListener);
+            numMessage++;
+            strcpy(MessageList[numMessage],Message);
+            pthread_mutex_unlock(&MutexListener);
+            pthread_cond_signal(&CondListener);
+        }
+        else{
+            printf("STOP_CHECKIN reçu\nArrêt de l'application");
+            kill(0,SIGINT);
+        }
+    }
+    pthread_exit(0);
+}
+
+char* getMessage(){
+    pthread_mutex_lock(&MutexListener);
+    char* MessageRetour = (char*) malloc(100*sizeof(char));
+    while(numMessage == 0)
+        pthread_cond_wait(&CondListener, &MutexListener);
+    strcpy(MessageRetour,MessageList[numMessage]);
+    strcpy(MessageList[numMessage],"");
+
+    numMessage--;
+    pthread_mutex_unlock(&MutexListener);
+
+    return MessageRetour;
+}
 
 void HandlerSigInt(int sig)
 {
@@ -226,7 +299,18 @@ void HandlerSigInt(int sig)
         close(hSocket);
         exit(-1);
     }
+
+    pthread_mutex_unlock(&MutexListener);
+    if(pthread_mutex_destroy(&MutexListener))
+        printf("Destruction de MutexListener\n");
+
+    pthread_cond_broadcast(&CondListener);
+    if(pthread_cond_destroy(&CondListener) == 0)
+        printf("Destruction de CondListener\n");
     printf("Deconnexion effectuee!\n");
+
+    if(pthread_cancel(handleListener_CIMP) == 0)
+        printf("Arret de ThreadListener_CIMP\n");
     sleep(1);
 
     close(hSocket);
